@@ -80,6 +80,7 @@ public class ImportDAO {
     private MasterDictionary dictionary;
     private Map<Integer, User> usersMap = new HashMap<Integer, User>();
     Map<Integer, Provider> providerMap = new HashMap<Integer, Provider>();
+    private Map<Integer, Date> dateOfBirthMap=new HashMap<Integer, Date>();
     private int visitID;
 
     public ImportDAO() {
@@ -724,7 +725,26 @@ public class ImportDAO {
         }
 
     }
-
+    public void loadDateOfBirths( ){
+        String sql_text="select person_id,birthdate from person where voided=0";
+        PreparedStatement ps=null;
+        ResultSet rs=null;
+        int count=0;
+        try{
+            ps=prepareQuery(sql_text);
+            rs=ps.executeQuery();
+            while(rs.next()){
+                dateOfBirthMap.put(rs.getInt("person_id"), rs.getDate("birthdate"));
+                count++;
+                screen.updateStatus("Loading Date of Births..."+count);
+            }
+            cleanup(rs, ps);
+        }catch(SQLException ex){
+            handleException(ex);
+        }finally{
+            cleanup(rs, ps);
+        }
+    }
     public void savePersons(List<Demographics> demoList) {
         String sql_text = "insert into person (person_id,gender,birthdate,dead,creator,date_created,voided,uuid) values(?,?,?,?,?,?,?,?)";
         PreparedStatement ps = prepareQuery(sql_text);
@@ -874,6 +894,25 @@ public class ImportDAO {
         return ans;
 
     }
+    public Date getDOBOfPatient(int patientID){
+        Date birthDate=null;
+        String sql_text="select birthdate from person where person_id=? and voided=0";
+        PreparedStatement ps=prepareQuery(sql_text);
+        ResultSet rs=null;
+        try{
+            ps.setInt(1, patientID);
+            rs=ps.executeQuery();
+            while(rs.next()){
+                birthDate=rs.getDate("birthdate");
+            }
+            cleanup(rs, ps);
+        }catch(SQLException ex){
+            handleException(ex);
+        }finally{
+            cleanup(rs, ps);
+        }
+        return birthDate;
+    }
 
     public void handleException(Exception ex) {
         screen.updateStatus(ex.getMessage());
@@ -903,6 +942,7 @@ public class ImportDAO {
         //All dictionaries needed for this operation is loaded here
         loadProviderMap();
         loadUserMap();
+        loadDateOfBirths();
         try {
             int size = countRecords(xmlFileName, "obs");
             XMLInputFactory factory = XMLInputFactory.newInstance();
@@ -1055,14 +1095,14 @@ public class ImportDAO {
                             count++;
                         }
                         if (count % 100 == 0) {
-                            migrateMigrateForms(obsList, locationID);
+                            migrateMigrateForms(obsList, locationID,dateOfBirthMap);
                             obsList.clear();
                         }
                     }
                 }
             }
             if (!obsList.isEmpty()) {
-                migrateMigrateForms(obsList, locationID);
+                migrateMigrateForms(obsList, locationID,dateOfBirthMap);
                 obsList.clear();
             }
             dictionary.closeAllResources();
@@ -1421,7 +1461,7 @@ public class ImportDAO {
 
     
 
-    public void migrateMigrateForms(List<Obs> obsList, int locationID) {
+    public void migrateMigrateForms(List<Obs> obsList, int locationID, Map<Integer, Date> dateMap) {
         
         Set<Visit> visitSet = createVisitSet(obsList, locationID);
 
@@ -1435,7 +1475,7 @@ public class ImportDAO {
         migrateEncounter(encounterSet, locationID);
         preprocessEncounterProviders(providerSet);
         migrateEncounterProvider(providerSet);
-        preprocessObsList(obsList);
+        preprocessObsList(obsList,dateMap);
         migrateObs(obsList, locationID);
     }
 
@@ -1596,11 +1636,11 @@ public class ImportDAO {
         return ans;
     }
 
-    public void preprocessObsList(List<Obs> obsList) {
+    public void preprocessObsList(List<Obs> obsList,Map<Integer,Date> dateMap) {
         //List<Obs> mappedObs = new ArrayList<Obs>();
         for(Obs obs : obsList) {
             if (dictionary.isMapped(obs) != null) {
-                dictionary.mapToNMRS(obs);
+                dictionary.mapToNMRS(obs,dateMap);
                 System.out.println("CMap was found");
                 obs.setAllowed(true);
             }else{

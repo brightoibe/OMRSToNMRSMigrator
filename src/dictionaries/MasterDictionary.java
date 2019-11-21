@@ -5,6 +5,7 @@
  */
 package dictionaries;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -21,6 +22,9 @@ import model.MapConfig;
 import model.Obs;
 import model.User;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.time.DateUtils;
+import org.joda.time.LocalDateTime;
+import org.joda.time.Period;
 import utils.Converter;
 import utils.FileManager;
 
@@ -70,7 +74,7 @@ public class MasterDictionary {
 
     }
 
-    public ConceptMap getConceptMapForRegimenConcepts(int age, int formID, ConceptMap cmap) {
+    public ConceptMap getConceptMapForRegimenConcepts(int age, ConceptMap cmap) {
         int omrsQuestionConceptID = cmap.getOmrsQuestionConcept();
         int omrsAnswerConceptID = cmap.getOmrsConceptID();
         if (age < 15) {
@@ -343,10 +347,18 @@ public void setDisplayScreen(DisplayScreen screen) {
         return ans;
     }
 
-    public void mapToNMRS(Obs omrsObs) {
+    public void mapToNMRS(Obs omrsObs,Map<Integer,Date> dateMap) {
         ConceptMap cmap = null;
+        Date birthdate=dateMap.get(omrsObs.getPatientID());
+        LocalDateTime birthDateTime=new LocalDateTime(birthdate);
+        LocalDateTime visitDateTime=new LocalDateTime(omrsObs.getVisitDate());
+        Period period=new Period(birthDateTime,visitDateTime);
+        int age=Math.abs(period.getYears());
         if (omrsObs.getValueCoded() != 0) {
             cmap = getConceptMapFor(omrsObs.getFormID(), omrsObs.getValueCoded(), omrsObs.getConceptID());
+            if(isRegimenObs(omrsObs)){
+                cmap=getConceptMapForRegimenConcepts(age, cmap);
+            }
         } else {
             cmap = getConceptMapFor(omrsObs.getFormID(), omrsObs.getConceptID());
         }
