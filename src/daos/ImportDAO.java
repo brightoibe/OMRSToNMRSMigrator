@@ -897,7 +897,7 @@ public class ImportDAO {
         File file = new File(xmlFileName);
         int count = 0;
         List<Obs> obsList = new ArrayList<Obs>();
-        int[] allowedForms={56,65,67};
+        int[] allowedForms={1,56,65,67};
         Obs obs = null;
         dictionary.initializeObsErrorLog();
         //All dictionaries needed for this operation is loaded here

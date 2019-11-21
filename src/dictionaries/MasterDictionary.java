@@ -5,6 +5,8 @@
  */
 package dictionaries;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -38,14 +40,95 @@ public class MasterDictionary {
     //private Map<Integer,Integer> encounterTypeMap=new HashMap<Integer,Integer>();
     private Map<Integer, List<ConceptMap>> csvMapDictionaries = new HashMap<Integer, List<ConceptMap>>();
     private List<ConceptMap> conceptMapList = null;
+    private Integer[] regimenConceptArr={7778531,7778532,7778533,7778611};
+    private final static int REGIMEN_LINE_AT_ART_START = 7778531;
+    private final static int FIRST_LINE_REGIMEN_AT_ART_START = 7778532;
+    private final static int SECOND_LINE_REGIMEN_AT_ART_START = 7778533;
+    private final static int THIRD_LINE_REGIMEN_AT_ART_START = 7778611;
+
+    private final static int ADULT_FIRST_LINE_REGIMEN = 164506;
+    private final static int ADULT_SECOND_LINE_REGIMEN = 164513;
+    private final static int ADULT_THIRD_LINE_REGIMEN = 165702;
+
+    private final static int CHILD_FIRST_LINE_REGIMEN = 164507;
+    private final static int CHILD_SECOND_LINE_REGIMEN = 164514;
+    private final static int CHILD_THIRD_LINE_REGIMEN = 165703;
+
+    private final static int FIRST_LINE_REGIMEN = 7778108;
+    private final static int SECOND_LINE_REGIMEN = 7778109;
+    private final static int THIRD_LINE_REGIMEN = 7778611;
+    
+    private List<Integer> regimenConceptlist=new ArrayList<Integer>();
 
     public MasterDictionary() {
         mgr = new FileManager();
         loadDictionaries();
+        /*
+            First Line, Second Line, ThirdLine
+            FirstLineRegimenAtStart,SecondLineRegimenAtStart,
+         */
 
     }
 
-    public void setDisplayScreen(DisplayScreen screen) {
+    public ConceptMap getConceptMapForRegimenConcepts(int age, int formID, ConceptMap cmap) {
+        int omrsQuestionConceptID = cmap.getOmrsQuestionConcept();
+        int omrsAnswerConceptID = cmap.getOmrsConceptID();
+        if (age < 15) {
+            switch (omrsQuestionConceptID) {
+                case REGIMEN_LINE_AT_ART_START:
+                    if (omrsAnswerConceptID == FIRST_LINE_REGIMEN) {
+                        cmap.setNmrsConceptID(CHILD_FIRST_LINE_REGIMEN);
+                    }
+                    if (omrsAnswerConceptID == SECOND_LINE_REGIMEN) {
+                        cmap.setNmrsConceptID(CHILD_SECOND_LINE_REGIMEN);
+                    }
+                    if (omrsAnswerConceptID == THIRD_LINE_REGIMEN) {
+                        cmap.setNmrsConceptID(CHILD_THIRD_LINE_REGIMEN);
+                    }
+                    break;
+                case FIRST_LINE_REGIMEN_AT_ART_START:
+                    cmap.setNmrsQuestionConcept(CHILD_FIRST_LINE_REGIMEN);
+                    break;
+                case SECOND_LINE_REGIMEN_AT_ART_START:
+                    cmap.setNmrsQuestionConcept(CHILD_SECOND_LINE_REGIMEN);
+                    break;
+                case THIRD_LINE_REGIMEN_AT_ART_START:
+                    cmap.setNmrsQuestionConcept(CHILD_THIRD_LINE_REGIMEN);
+                    break;
+                default:
+                    break;
+            }
+        }
+        if (age >= 15) {
+            switch (omrsQuestionConceptID) {
+                case REGIMEN_LINE_AT_ART_START:
+                    if (omrsAnswerConceptID == FIRST_LINE_REGIMEN) {
+                        cmap.setNmrsConceptID(ADULT_FIRST_LINE_REGIMEN);
+                    }
+                    if (omrsAnswerConceptID == SECOND_LINE_REGIMEN) {
+                        cmap.setNmrsConceptID(ADULT_SECOND_LINE_REGIMEN);
+                    }
+                    if (omrsAnswerConceptID == THIRD_LINE_REGIMEN) {
+                        cmap.setNmrsConceptID(ADULT_THIRD_LINE_REGIMEN);
+                    }
+                    break;
+                case FIRST_LINE_REGIMEN_AT_ART_START:
+                    cmap.setNmrsQuestionConcept(ADULT_FIRST_LINE_REGIMEN);
+                    break;
+                case SECOND_LINE_REGIMEN_AT_ART_START:
+                    cmap.setNmrsQuestionConcept(ADULT_SECOND_LINE_REGIMEN);
+                    break;
+                case THIRD_LINE_REGIMEN_AT_ART_START:
+                    cmap.setNmrsQuestionConcept(ADULT_THIRD_LINE_REGIMEN);
+                    break;
+                default:
+                    break;
+            }
+        }
+     return cmap ;
+}
+
+public void setDisplayScreen(DisplayScreen screen) {
         this.screen = screen;
         mgr.setScreen(screen);
     }
@@ -85,6 +168,7 @@ public class MasterDictionary {
         formIDMap.put(80, 8);
         formIDMap.put(77, 38);
         formIDMap.put(79, 13);
+        formIDMap.put(1, 56);
     }
 
     public void initializeUserErrorLog() {
@@ -232,6 +316,7 @@ public class MasterDictionary {
         loadFormIDMap();
         loadEncounterTypeIDMap();
         loadMapFiles();
+        loadRegimenSpecialConcepts();
 
     }
     public void closeAllResources(){
@@ -245,6 +330,17 @@ public class MasterDictionary {
             cmap = getConceptMapFor(omrsObs.getFormID(), omrsObs.getConceptID());
         }
         return cmap;
+    }
+    public void loadRegimenSpecialConcepts(){
+        regimenConceptlist.addAll(Arrays.asList(regimenConceptArr));
+    }
+    public boolean isRegimenObs(Obs omrsobs){
+        boolean ans=false;
+        int conceptID=omrsobs.getConceptID();
+        if(regimenConceptlist.contains(conceptID)){
+            ans=true;
+        }
+        return ans;
     }
 
     public void mapToNMRS(Obs omrsObs) {
