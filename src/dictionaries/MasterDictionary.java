@@ -159,7 +159,7 @@ public void setDisplayScreen(DisplayScreen screen) {
         formIDMap.put(65, 23);
         formIDMap.put(29, 11);
         formIDMap.put(20, 20);
-        formIDMap.put(1, 23);
+        //formIDMap.put(1, 23);
         formIDMap.put(71, 13);
         formIDMap.put(84, 52);
         formIDMap.put(85, 52);
@@ -314,6 +314,7 @@ public void setDisplayScreen(DisplayScreen screen) {
         encounterTypeIDMap.put(51, 21);
         encounterTypeIDMap.put(52, 22);
         encounterTypeIDMap.put(53, 23);
+        encounterTypeIDMap.put(56, 25);
     }
 
     public void loadDictionaries() {
