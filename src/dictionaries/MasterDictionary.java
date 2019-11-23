@@ -23,6 +23,7 @@ import model.Obs;
 import model.User;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
+import org.joda.time.DateTime;
 import org.joda.time.LocalDateTime;
 import org.joda.time.Period;
 import utils.Converter;
@@ -44,7 +45,10 @@ public class MasterDictionary {
     //private Map<Integer,Integer> encounterTypeMap=new HashMap<Integer,Integer>();
     private Map<Integer, List<ConceptMap>> csvMapDictionaries = new HashMap<Integer, List<ConceptMap>>();
     private List<ConceptMap> conceptMapList = null;
-    private Integer[] regimenConceptArr={7778531,7778532,7778533,7778611};
+
+    private Integer[] regimenConceptArr = {7778531, 7778532, 7778533, 7778611};
+    private Integer[] specialConceptArr = {7777821};
+
     private final static int REGIMEN_LINE_AT_ART_START = 7778531;
     private final static int FIRST_LINE_REGIMEN_AT_ART_START = 7778532;
     private final static int SECOND_LINE_REGIMEN_AT_ART_START = 7778533;
@@ -61,8 +65,11 @@ public class MasterDictionary {
     private final static int FIRST_LINE_REGIMEN = 7778108;
     private final static int SECOND_LINE_REGIMEN = 7778109;
     private final static int THIRD_LINE_REGIMEN = 7778611;
-    
-    private List<Integer> regimenConceptlist=new ArrayList<Integer>();
+
+    private final static int NMRS_NEXT_APPOINTMENT_DATE_CONCEPT_ID = 165036;
+
+    private List<Integer> regimenConceptlist = new ArrayList<Integer>();
+    private List<Integer> specialConceptList = new ArrayList<Integer>();
 
     public MasterDictionary() {
         mgr = new FileManager();
@@ -73,6 +80,8 @@ public class MasterDictionary {
          */
 
     }
+
+   
 
     public ConceptMap getConceptMapForRegimenConcepts(int age, ConceptMap cmap) {
         int omrsQuestionConceptID = cmap.getOmrsQuestionConcept();
@@ -129,10 +138,10 @@ public class MasterDictionary {
                     break;
             }
         }
-     return cmap ;
-}
+        return cmap;
+    }
 
-public void setDisplayScreen(DisplayScreen screen) {
+    public void setDisplayScreen(DisplayScreen screen) {
         this.screen = screen;
         mgr.setScreen(screen);
     }
@@ -178,7 +187,7 @@ public void setDisplayScreen(DisplayScreen screen) {
     public void initializeUserErrorLog() {
         String errorUserFile;
         String[] errorUserHeader;
-        
+
         errorUserHeader = new String[]{
             "user_id",
             "person_id",
@@ -195,18 +204,18 @@ public void setDisplayScreen(DisplayScreen screen) {
             "retired_by"
 
         };
-        
-        
-        Date currentDate=new Date();
-        errorUserFile="ErrorUsers"+Converter.formatHHMMSSDDMONYYYYNoSlash(currentDate)+".csv";
-        
+
+        Date currentDate = new Date();
+        errorUserFile = "ErrorUsers" + Converter.formatHHMMSSDDMONYYYYNoSlash(currentDate) + ".csv";
+
         //mgr.initializeWriter(errorDemoFile);
         mgr.initializeWriter(errorUserFile);
         mgr.writeHeaders(errorUserHeader);
-        
+
     }
-    public void initializeDemographicErrorLog(){
-       String[]  errorDemoHeader = new String[]{
+
+    public void initializeDemographicErrorLog() {
+        String[] errorDemoHeader = new String[]{
             "person_source_pk",
             "person_uuid",
             "pepfar_id",
@@ -235,13 +244,14 @@ public void setDisplayScreen(DisplayScreen screen) {
             "location",
             "date_changed"
         };
-       Date currentDate=new Date();
-       String errorDemoFile="ErrorDemographics"+Converter.formatHHMMSSDDMONYYYYNoSlash(currentDate)+".csv";
-       mgr.initializeWriter(errorDemoFile);
-       mgr.writeHeaders(errorDemoHeader);
+        Date currentDate = new Date();
+        String errorDemoFile = "ErrorDemographics" + Converter.formatHHMMSSDDMONYYYYNoSlash(currentDate) + ".csv";
+        mgr.initializeWriter(errorDemoFile);
+        mgr.writeHeaders(errorDemoHeader);
     }
-    public void initializeObsErrorLog(){
-       String[]  errorObsHeader = new String[]{
+
+    public void initializeObsErrorLog() {
+        String[] errorObsHeader = new String[]{
             "OBS_ID",
             "PATIENT_ID",
             "ENCOUNTER_ID",
@@ -272,21 +282,25 @@ public void setDisplayScreen(DisplayScreen screen) {
             "VOIDED_BY",
             "CHANGED_BY",
             "FORM_ID"};
-       Date currentDate=new Date();
-       String errorObsFile = "ErrorObs" + Converter.formatHHMMSSDDMONYYYYNoSlash(currentDate)+".csv";
-       mgr.initializeWriter(errorObsFile);
-       mgr.writeHeaders(errorObsHeader);
-       
+        Date currentDate = new Date();
+        String errorObsFile = "ErrorObs" + Converter.formatHHMMSSDDMONYYYYNoSlash(currentDate) + ".csv";
+        mgr.initializeWriter(errorObsFile);
+        mgr.writeHeaders(errorObsHeader);
+
     }
-    public void log(Obs obs){
+
+    public void log(Obs obs) {
         mgr.writeCSV(obs);
     }
-    public void log(User usr){
+
+    public void log(User usr) {
         mgr.writeCSV(usr);
     }
-    public void log(Demographics demo){
+
+    public void log(Demographics demo) {
         mgr.writeCSV(demo);
     }
+
     public void loadEncounterTypeIDMap() {
         encounterTypeIDMap.put(1, 7);
         encounterTypeIDMap.put(2, 3);
@@ -322,11 +336,14 @@ public void setDisplayScreen(DisplayScreen screen) {
         loadEncounterTypeIDMap();
         loadMapFiles();
         loadRegimenSpecialConcepts();
+        loadSpecialConcepts();
 
     }
-    public void closeAllResources(){
+
+    public void closeAllResources() {
         mgr.closeAll();
     }
+
     public ConceptMap isMapped(Obs omrsObs) {
         ConceptMap cmap = null;
         if (omrsObs.getValueCoded() != 0) {
@@ -336,32 +353,41 @@ public void setDisplayScreen(DisplayScreen screen) {
         }
         return cmap;
     }
-    public void loadRegimenSpecialConcepts(){
+
+    public void loadRegimenSpecialConcepts() {
         regimenConceptlist.addAll(Arrays.asList(regimenConceptArr));
     }
-    public boolean isRegimenObs(Obs omrsobs){
-        boolean ans=false;
-        int conceptID=omrsobs.getConceptID();
-        if(regimenConceptlist.contains(conceptID)){
-            ans=true;
+
+    public void loadSpecialConcepts() {
+        specialConceptList.addAll(Arrays.asList(specialConceptArr));
+    }
+
+    public boolean isRegimenObs(Obs omrsobs) {
+        boolean ans = false;
+        int conceptID = omrsobs.getConceptID();
+        if (regimenConceptlist.contains(conceptID)) {
+            ans = true;
         }
         return ans;
     }
 
-    public void mapToNMRS(Obs omrsObs,Map<Integer,Date> dateMap) {
+    public void mapToNMRS(Obs omrsObs, Map<Integer, Date> dateMap) {
         ConceptMap cmap = null;
-        Date birthdate=dateMap.get(omrsObs.getPatientID());
-        LocalDateTime birthDateTime=new LocalDateTime(birthdate);
-        LocalDateTime visitDateTime=new LocalDateTime(omrsObs.getVisitDate());
-        Period period=new Period(birthDateTime,visitDateTime);
-        int age=Math.abs(period.getYears());
+        Date birthdate = dateMap.get(omrsObs.getPatientID());
+        LocalDateTime birthDateTime = new LocalDateTime(birthdate);
+        LocalDateTime visitDateTime = new LocalDateTime(omrsObs.getVisitDate());
+        LocalDateTime nextAppointmentDate = null;
+        Period period = new Period(birthDateTime, visitDateTime);
+        int age = Math.abs(period.getYears());
+
         if (omrsObs.getValueCoded() != 0) {
             cmap = getConceptMapFor(omrsObs.getFormID(), omrsObs.getValueCoded(), omrsObs.getConceptID());
-            if(isRegimenObs(omrsObs)){
-                cmap=getConceptMapForRegimenConcepts(age, cmap);
+            if (isRegimenObs(omrsObs)) {
+                cmap = getConceptMapForRegimenConcepts(age, cmap);
             }
         } else {
             cmap = getConceptMapFor(omrsObs.getFormID(), omrsObs.getConceptID());
+
         }
         if (cmap != null) {
             if (omrsObs.getValueCoded() != 0) {
@@ -372,8 +398,46 @@ public void setDisplayScreen(DisplayScreen screen) {
                 omrsObs.setFormID(formIDMap.get(omrsObs.getFormID()));
                 omrsObs.setConceptID(cmap.getNmrsConceptID());
             }
+            handleSpecialConcepts(omrsObs, cmap);
+
         } else {
             omrsObs.setAllowed(false);
+        }
+    }
+
+    public void handleSpecialConcepts(Obs omrsObs, ConceptMap cmap) {
+        if (specialConceptList.contains(omrsObs.getConceptID())) {
+            int omrsConceptID = omrsObs.getConceptID();
+            int omrsValueCoded = omrsObs.getValueCoded();
+            LocalDateTime visitDateTime = new LocalDateTime(omrsObs.getVisitDate());
+            LocalDateTime nextAppointmentDate = null;
+            if (omrsConceptID == 7777821 && omrsObs.getVisitDate() != null) {
+                switch (omrsValueCoded) {
+                    case 1570:
+                        nextAppointmentDate = visitDateTime.plusWeeks(1);
+                        break;
+                    case 1571:
+                        nextAppointmentDate = visitDateTime.plusWeeks(2);
+                        break;
+                    case 1628:
+                        nextAppointmentDate = visitDateTime.plusWeeks(4);
+                        break;
+                    case 1574:
+                        nextAppointmentDate = visitDateTime.plusMonths(2);
+                        break;
+                    case 1575:
+                        nextAppointmentDate = visitDateTime.plusMonths(3);
+                        break;
+                    default:
+                        break;
+                }
+                cmap.setNmrsConceptID(NMRS_NEXT_APPOINTMENT_DATE_CONCEPT_ID);
+                if (nextAppointmentDate != null) {
+                    omrsObs.setValueDate(nextAppointmentDate.toDate());
+                    omrsObs.setConceptID(NMRS_NEXT_APPOINTMENT_DATE_CONCEPT_ID);
+                }
+
+            }
         }
     }
 
