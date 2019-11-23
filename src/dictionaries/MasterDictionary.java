@@ -47,7 +47,7 @@ public class MasterDictionary {
     private List<ConceptMap> conceptMapList = null;
 
     private Integer[] regimenConceptArr = {7778531, 7778532, 7778533, 7778611};
-    private Integer[] specialConceptArr = {7777821};
+    private Integer[] specialConceptArr = {};
 
     private final static int REGIMEN_LINE_AT_ART_START = 7778531;
     private final static int FIRST_LINE_REGIMEN_AT_ART_START = 7778532;
