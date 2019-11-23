@@ -309,10 +309,12 @@ public class MasterDictionary {
         encounterTypeIDMap.put(7, 5);
         encounterTypeIDMap.put(8, 18);
         encounterTypeIDMap.put(10, 2);
+        
         encounterTypeIDMap.put(13, 15);
         encounterTypeIDMap.put(14, 12);
         encounterTypeIDMap.put(15, 16);
         encounterTypeIDMap.put(16, 10);
+        encounterTypeIDMap.put(18, 26);
         encounterTypeIDMap.put(19, 9);
         encounterTypeIDMap.put(20, 8);
         encounterTypeIDMap.put(21, 11);
