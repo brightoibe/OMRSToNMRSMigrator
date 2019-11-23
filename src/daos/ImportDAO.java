@@ -1355,11 +1355,11 @@ public class ImportDAO {
         Encounter enc,enc2 = null;
         for (Obs obs : obsList) {
             enc = createEncounterFromObs(obs, locationID);
-            enc2=createAdditionalFormForInitialEvaluation(obs, locationID);
+            //enc2=createAdditionalFormForInitialEvaluation(obs, locationID);
             encounterSet.add(enc);
-            if(enc2!=null){
-                encounterSet.add(enc2);
-            }
+            //if(enc2!=null){
+                //encounterSet.add(enc2);
+            //}
         }
         return encounterSet;
     }
