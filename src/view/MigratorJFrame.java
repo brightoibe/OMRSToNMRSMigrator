@@ -120,7 +120,7 @@ public class MigratorJFrame extends javax.swing.JFrame implements DisplayScreen 
         ctr.registerDisplay(this);
         errorList = new ArrayList<>();
         usernameField.setText("openmrs");
-        passwordField.setText("OdtNq27WlG.G");
+        passwordField.setText("ck9RdGyz&jXR");
         databaseField.setText("openmrs");
         hostField.setText("192.168.40.221");
         portField.setText("3316");

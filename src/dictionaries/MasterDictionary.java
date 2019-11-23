@@ -447,11 +447,14 @@ public class MasterDictionary {
 
     public void mapToNMRS(Encounter omrsEncounter) {
         if (omrsEncounter != null && formIDMap.containsKey(omrsEncounter.getFormID()) && encounterTypeIDMap.containsKey(formIDMap.get(omrsEncounter.getFormID()))) {
+            
+            
             int omrsFormID = omrsEncounter.getFormID();
             omrsEncounter.setFormID(formIDMap.get(omrsFormID));
             int nmrsFormID = formIDMap.get(omrsFormID);
             int nmrsEncounterType = encounterTypeIDMap.get(nmrsFormID);
             omrsEncounter.setEncounterType(nmrsEncounterType);
+            
             System.out.println("Encounter mapping done...");
         } else {
             if (omrsEncounter != null) {
@@ -459,7 +462,19 @@ public class MasterDictionary {
             }
         }
     }
+    public ConceptMap getConceptMapFor(int age,Obs omrsObs){
+        ConceptMap cmap=null;
+        if (omrsObs.getValueCoded() != 0) {
+            cmap = getConceptMapFor(omrsObs.getFormID(), omrsObs.getValueCoded(), omrsObs.getConceptID());
+            if (isRegimenObs(omrsObs)) {
+                cmap = getConceptMapForRegimenConcepts(age, cmap);
+            }
+        } else {
+            cmap = getConceptMapFor(omrsObs.getFormID(), omrsObs.getConceptID());
 
+        }
+        return cmap;
+    }
     public ConceptMap getConceptMapFor(int omrsFormID, int omrsConceptID) {
         ConceptMap conceptMap = null;
         for (ConceptMap cmap : conceptMapList) {

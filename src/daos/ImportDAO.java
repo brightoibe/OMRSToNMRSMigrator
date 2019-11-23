@@ -35,6 +35,7 @@ import javax.xml.stream.events.Characters;
 import javax.xml.stream.events.EndElement;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
+import model.ConceptMap;
 import model.Demographics;
 import model.Encounter;
 import model.EncounterProvider;
@@ -80,7 +81,7 @@ public class ImportDAO {
     private MasterDictionary dictionary;
     private Map<Integer, User> usersMap = new HashMap<Integer, User>();
     Map<Integer, Provider> providerMap = new HashMap<Integer, Provider>();
-    private Map<Integer, Date> dateOfBirthMap=new HashMap<Integer, Date>();
+    private Map<Integer, Date> dateOfBirthMap = new HashMap<Integer, Date>();
     private int visitID;
 
     public ImportDAO() {
@@ -676,7 +677,7 @@ public class ImportDAO {
                             count++;
                             screen.updateProgress(count);
                             screen.updateStatus(count + " of " + size + " patient created in batch: " + batch_count);
-                        }else{
+                        } else {
                             dictionary.log(demo);
                         }
                         if ((count % 200) == 0) {
@@ -725,26 +726,28 @@ public class ImportDAO {
         }
 
     }
-    public void loadDateOfBirths( ){
-        String sql_text="select person_id,birthdate from person where voided=0";
-        PreparedStatement ps=null;
-        ResultSet rs=null;
-        int count=0;
-        try{
-            ps=prepareQuery(sql_text);
-            rs=ps.executeQuery();
-            while(rs.next()){
+
+    public void loadDateOfBirths() {
+        String sql_text = "select person_id,birthdate from person where voided=0";
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        int count = 0;
+        try {
+            ps = prepareQuery(sql_text);
+            rs = ps.executeQuery();
+            while (rs.next()) {
                 dateOfBirthMap.put(rs.getInt("person_id"), rs.getDate("birthdate"));
                 count++;
-                screen.updateStatus("Loading Date of Births..."+count);
+                screen.updateStatus("Loading Date of Births..." + count);
             }
             cleanup(rs, ps);
-        }catch(SQLException ex){
+        } catch (SQLException ex) {
             handleException(ex);
-        }finally{
+        } finally {
             cleanup(rs, ps);
         }
     }
+
     public void savePersons(List<Demographics> demoList) {
         String sql_text = "insert into person (person_id,gender,birthdate,dead,creator,date_created,voided,uuid) values(?,?,?,?,?,?,?,?)";
         PreparedStatement ps = prepareQuery(sql_text);
@@ -894,21 +897,22 @@ public class ImportDAO {
         return ans;
 
     }
-    public Date getDOBOfPatient(int patientID){
-        Date birthDate=null;
-        String sql_text="select birthdate from person where person_id=? and voided=0";
-        PreparedStatement ps=prepareQuery(sql_text);
-        ResultSet rs=null;
-        try{
+
+    public Date getDOBOfPatient(int patientID) {
+        Date birthDate = null;
+        String sql_text = "select birthdate from person where person_id=? and voided=0";
+        PreparedStatement ps = prepareQuery(sql_text);
+        ResultSet rs = null;
+        try {
             ps.setInt(1, patientID);
-            rs=ps.executeQuery();
-            while(rs.next()){
-                birthDate=rs.getDate("birthdate");
+            rs = ps.executeQuery();
+            while (rs.next()) {
+                birthDate = rs.getDate("birthdate");
             }
             cleanup(rs, ps);
-        }catch(SQLException ex){
+        } catch (SQLException ex) {
             handleException(ex);
-        }finally{
+        } finally {
             cleanup(rs, ps);
         }
         return birthDate;
@@ -936,7 +940,7 @@ public class ImportDAO {
         File file = new File(xmlFileName);
         int count = 0;
         List<Obs> obsList = new ArrayList<Obs>();
-        int[] allowedForms={1,56,65,67,18};
+        int[] allowedForms = {1, 56, 65, 67, 18};
         Obs obs = null;
         dictionary.initializeObsErrorLog();
         //All dictionaries needed for this operation is loaded here
@@ -1089,8 +1093,8 @@ public class ImportDAO {
                         if (obs != null) {
                             screen.updateProgress(count);
                             screen.updateStatus(count + " of " + size + " obs records migrated");
-                            if(Arrays.binarySearch(allowedForms, obs.getFormID())>=0 && obs.getVoided()==0){
-                                if(obs.getFormID()==18){
+                            if (Arrays.binarySearch(allowedForms, obs.getFormID()) >= 0 && obs.getVoided() == 0) {
+                                if (obs.getFormID() == 18) {
                                     System.out.println("Adult Intial Form Found and added to List: ");
                                 }
                                 obsList.add(obs);
@@ -1098,14 +1102,14 @@ public class ImportDAO {
                             count++;
                         }
                         if (count % 100 == 0) {
-                            migrateMigrateForms(obsList, locationID,dateOfBirthMap);
+                            migrateMigrateForms(obsList, locationID, dateOfBirthMap);
                             obsList.clear();
                         }
                     }
                 }
             }
             if (!obsList.isEmpty()) {
-                migrateMigrateForms(obsList, locationID,dateOfBirthMap);
+                migrateMigrateForms(obsList, locationID, dateOfBirthMap);
                 obsList.clear();
             }
             dictionary.closeAllResources();
@@ -1276,7 +1280,7 @@ public class ImportDAO {
                     if ("user".equalsIgnoreCase(endElement.getName().getLocalPart())) {
                         if (usr != null && (usr.getPerson_id() != 1 && usr.getPerson_id() != 10) && !existsInList(userList, usr.getPerson_id()) && !StringUtils.equalsIgnoreCase("scheduler", usr.getUserName()) && !StringUtils.equalsIgnoreCase("daemon", usr.getUserName())) {
                             userList.add(usr);
-                        }else{
+                        } else {
                             dictionary.log(usr);
                         }
                         count++;
@@ -1348,10 +1352,14 @@ public class ImportDAO {
 
     public Set<Encounter> createEncounterSet(List<Obs> obsList, int locationID) {
         Set<Encounter> encounterSet = new HashSet<Encounter>();
-        Encounter enc = null;
+        Encounter enc,enc2 = null;
         for (Obs obs : obsList) {
             enc = createEncounterFromObs(obs, locationID);
+            enc2=createAdditionalFormForInitialEvaluation(obs, locationID);
             encounterSet.add(enc);
+            if(enc2!=null){
+                encounterSet.add(enc2);
+            }
         }
         return encounterSet;
     }
@@ -1460,12 +1468,8 @@ public class ImportDAO {
         migrateEncounterProvider(providerSet);
     }
 
-    
-
-    
-
     public void migrateMigrateForms(List<Obs> obsList, int locationID, Map<Integer, Date> dateMap) {
-        
+
         Set<Visit> visitSet = createVisitSet(obsList, locationID);
 
         Set<Encounter> encounterSet = createEncounterSet(obsList, locationID);
@@ -1478,7 +1482,7 @@ public class ImportDAO {
         migrateEncounter(encounterSet, locationID);
         preprocessEncounterProviders(providerSet);
         migrateEncounterProvider(providerSet);
-        preprocessObsList(obsList,dateMap);
+        preprocessObsList(obsList, dateMap);
         migrateObs(obsList, locationID);
     }
 
@@ -1497,9 +1501,9 @@ public class ImportDAO {
             cleanup(rs, ps);
         } catch (SQLException ex) {
             handleException(ex);
-        }finally{
+        } finally {
             cleanup(rs, ps);
-        } 
+        }
         return ans;
     }
 
@@ -1530,7 +1534,7 @@ public class ImportDAO {
             for (Visit visit : visitSet) {
                 if (isExisting(visit)) {
                     visit.setExists(true);
-                } 
+                }
             }
         }
         //return visitSet;
@@ -1550,7 +1554,7 @@ public class ImportDAO {
             cleanup(rs, ps);
         } catch (SQLException ex) {
             handleException(ex);
-        } finally{
+        } finally {
             cleanup(rs, ps);
         }
         return ans;
@@ -1584,16 +1588,16 @@ public class ImportDAO {
             dictionary.mapToNMRS(encounter);
             if (isExisting(encounter)) {
                 encounter.setExists(true);
-                 System.out.println("Encounter existing");
-            }else{
+                System.out.println("Encounter existing");
+            } else {
                 System.out.println("Encounter not existing");
                 encounter.setExists(false);
             }
             if (isExistingVisit(encounter.getEncounterDatetime(), encounter.getPatientID())) {
                 visitID = getVisitID(encounter.getEncounterDatetime(), encounter.getPatientID());
                 encounter.setVisitID(visitID);
-                System.out.println("Encounter id is: "+encounter.getEncounterID()+ " Visit id is "+visitID);
-            }else{
+                System.out.println("Encounter id is: " + encounter.getEncounterID() + " Visit id is " + visitID);
+            } else {
                 System.out.println("Visit not existing");
             }
 
@@ -1614,7 +1618,7 @@ public class ImportDAO {
                 encounterProvider.setExists(false);
             }
         }
-       // return encounterProviders;
+        // return encounterProviders;
     }
 
     public boolean isExisting(EncounterProvider encounterProvider) {
@@ -1639,20 +1643,20 @@ public class ImportDAO {
         return ans;
     }
 
-    public void preprocessObsList(List<Obs> obsList,Map<Integer,Date> dateMap) {
+    public void preprocessObsList(List<Obs> obsList, Map<Integer, Date> dateMap) {
         //List<Obs> mappedObs = new ArrayList<Obs>();
-        for(Obs obs : obsList) {
+        for (Obs obs : obsList) {
             if (dictionary.isMapped(obs) != null) {
-                dictionary.mapToNMRS(obs,dateMap);
+                dictionary.mapToNMRS(obs, dateMap);
                 System.out.println("CMap was found");
                 obs.setAllowed(true);
-            }else{
+            } else {
                 obs.setAllowed(false);
                 dictionary.log(obs);
             }
-            if(isExisting(obs)){
+            if (isExisting(obs)) {
                 obs.setExist(true);
-            }else{
+            } else {
                 obs.setExist(false);
             }
         }
@@ -1679,6 +1683,7 @@ public class ImportDAO {
         }
         return ans;
     }
+
     public void handlePS(int pos, int val, PreparedStatement ps) throws SQLException {
         if (val == 0) {
             ps.setNull(pos, java.sql.Types.INTEGER);
@@ -1686,6 +1691,7 @@ public class ImportDAO {
             ps.setInt(pos, val);
         }
     }
+
     public void handlePS(int pos, double val, PreparedStatement ps) throws SQLException {
         if (val == 0.0) {
             ps.setNull(pos, java.sql.Types.DOUBLE);
@@ -1693,7 +1699,6 @@ public class ImportDAO {
             ps.setDouble(pos, val);
         }
     }
-
 
     public void migrateObs(List<Obs> obsList, int locationID) {
         String sql_text = "insert into obs (obs_id,person_id,concept_id,encounter_id,"
@@ -1713,10 +1718,10 @@ public class ImportDAO {
                     ps.setDate(5, Converter.convertToSQLDate(obs.getVisitDate()));
                     ps.setInt(6, locationID);
                     //handlePS(6, obs.getObsGroupID(), ps);
-                    handlePS(7, obs.getObsGroupID(),ps);
-                    handlePS(8,obs.getValueCoded(),ps);
+                    handlePS(7, obs.getObsGroupID(), ps);
+                    handlePS(8, obs.getValueCoded(), ps);
                     ps.setDate(9, Converter.convertToSQLDate(obs.getValueDate()));
-                    handlePS(10, obs.getValueNumeric(),ps);
+                    handlePS(10, obs.getValueNumeric(), ps);
                     ps.setString(11, obs.getValueText());
                     ps.setInt(12, obs.getCreator());
                     ps.setDate(13, Converter.convertToSQLDate(obs.getDateEntered()));
@@ -1732,7 +1737,7 @@ public class ImportDAO {
             handleException(ex);
         }
     }
-   
+
     public Encounter createEncounterFromObs(Obs obs, int locationID) {
         Encounter enc = new Encounter();
         enc.setEncounterID(obs.getEncounterID());
@@ -1740,6 +1745,7 @@ public class ImportDAO {
         enc.setPatientID(obs.getPatientID());
         enc.setLocationID(locationID);
         enc.setFormID(obs.getFormID());
+
         enc.setEncounterDatetime(obs.getVisitDate());
         enc.setCreator(obs.getCreator());
         enc.setDateCreated(obs.getDateEntered());
@@ -1747,6 +1753,30 @@ public class ImportDAO {
         enc.setProviderID((obs.getProviderID()));
         // Visit ID not set
         enc.setUuid(Converter.generateUUID());
+
+        return enc;
+    }
+
+    public Encounter createAdditionalFormForInitialEvaluation(Obs obs, int locationID) {
+        Encounter enc = null;
+        int OMRS_ADULT_INITIAL_FORM_ID = 18;
+        int OMRS_CARE_CARD_INITIAL_ID=28;
+        if (obs.getFormID() == OMRS_ADULT_INITIAL_FORM_ID) {
+            enc = new Encounter();
+            enc.setEncounterID(obs.getEncounterID());
+            //enc.setEncounterType(dictionary.convertEncounterType(obs.getFormID()));
+            enc.setPatientID(obs.getPatientID());
+            enc.setLocationID(locationID);
+            enc.setFormID(OMRS_CARE_CARD_INITIAL_ID);
+
+            enc.setEncounterDatetime(obs.getVisitDate());
+            enc.setCreator(obs.getCreator());
+            enc.setDateCreated(obs.getDateEntered());
+            enc.setVoided(obs.getVoided());
+            enc.setProviderID((obs.getProviderID()));
+            // Visit ID not set
+            enc.setUuid(Converter.generateUUID());
+        }
         return enc;
     }
 
