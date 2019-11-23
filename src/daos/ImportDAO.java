@@ -940,7 +940,9 @@ public class ImportDAO {
         File file = new File(xmlFileName);
         int count = 0;
         List<Obs> obsList = new ArrayList<Obs>();
-        int[] allowedForms = {1, 56, 65, 67, 18};
+        Integer[] allowedForms = {1, 56, 65, 67, 18};
+        List<Integer> allowedFormList=new ArrayList<Integer>();
+        allowedFormList.addAll(Arrays.asList(allowedForms));
         Obs obs = null;
         dictionary.initializeObsErrorLog();
         //All dictionaries needed for this operation is loaded here
@@ -1093,11 +1095,9 @@ public class ImportDAO {
                         if (obs != null) {
                             screen.updateProgress(count);
                             screen.updateStatus(count + " of " + size + " obs records migrated");
-                            if (Arrays.binarySearch(allowedForms, obs.getFormID()) >= 0 && obs.getVoided() == 0) {
-                                if (obs.getFormID() == 18) {
-                                    System.out.println("Adult Intial Form Found and added to List: ");
-                                }
-                                obsList.add(obs);
+                            
+                            if (allowedFormList.contains(obs.getFormID()) && obs.getVoided() == 0) {
+                               obsList.add(obs);
                             }
                             count++;
                         }
@@ -1988,4 +1988,5 @@ public class ImportDAO {
         }
         return locationList;
     }
+    
 }
