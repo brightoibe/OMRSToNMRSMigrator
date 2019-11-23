@@ -1090,6 +1090,9 @@ public class ImportDAO {
                             screen.updateProgress(count);
                             screen.updateStatus(count + " of " + size + " obs records migrated");
                             if(Arrays.binarySearch(allowedForms, obs.getFormID())>=0 && obs.getVoided()==0){
+                                if(obs.getFormID()==18){
+                                    System.out.println("Adult Intial Form Found and added to List: ");
+                                }
                                 obsList.add(obs);
                             }
                             count++;

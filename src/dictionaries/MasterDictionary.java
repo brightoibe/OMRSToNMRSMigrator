@@ -312,7 +312,7 @@ public class MasterDictionary {
         
         encounterTypeIDMap.put(13, 15);
         encounterTypeIDMap.put(14, 12);
-        encounterTypeIDMap.put(15, 16);
+        encounterTypeIDMap.put(5, 16);
         encounterTypeIDMap.put(16, 10);
         encounterTypeIDMap.put(18, 26);
         encounterTypeIDMap.put(19, 9);
@@ -393,14 +393,16 @@ public class MasterDictionary {
         }
         if (cmap != null) {
             if (omrsObs.getValueCoded() != 0) {
-                omrsObs.setFormID(formIDMap.get(omrsObs.getFormID()));
+                //omrsObs.setFormID(formIDMap.get(omrsObs.getFormID()));
+                omrsObs.setFormID(cmap.getNmrsFormID());
                 omrsObs.setConceptID(cmap.getNmrsQuestionConcept());
                 omrsObs.setValueCoded(cmap.getNmrsConceptID());
             } else {
-                omrsObs.setFormID(formIDMap.get(omrsObs.getFormID()));
+                //omrsObs.setFormID(formIDMap.get(omrsObs.getFormID()));
+                omrsObs.setFormID(cmap.getNmrsFormID());
                 omrsObs.setConceptID(cmap.getNmrsConceptID());
             }
-            handleSpecialConcepts(omrsObs, cmap);
+            //handleSpecialConcepts(omrsObs, cmap);
 
         } else {
             omrsObs.setAllowed(false);
