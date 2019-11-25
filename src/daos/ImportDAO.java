@@ -1482,7 +1482,6 @@ public class ImportDAO {
         preprocessEncounterProviders(providerSet);
         migrateEncounterProvider(providerSet);
         preprocessObsList(obsList, dateMap);
-        
         migrateObs(obsList, locationID);
     }
 
@@ -1647,7 +1646,7 @@ public class ImportDAO {
         //List<Obs> mappedObs = new ArrayList<Obs>();
         
         for (Obs obs : obsList) {
-            if (dictionary.isMapped(obs) != null) {
+            if (dictionary.isMapped(obs) != null || dictionary.isSpecialConcept(obs)) {
                 dictionary.mapToNMRS(obs, dateMap);
                 System.out.println("CMap was found");
                 obs.setAllowed(true);

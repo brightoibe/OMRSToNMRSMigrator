@@ -515,6 +515,14 @@ public class MasterDictionary {
         }
         return ans;
     }
+    
+    public boolean isSpecialConcept(Obs omrsObs){
+        boolean ans=false;
+        if(specialConceptList.contains(omrsObs.getConceptID())){
+            ans=true;
+        }
+        return ans;
+    }
 
     public void mapToNMRS(Obs omrsObs, Map<Integer, Date> dateMap) {
 
@@ -583,10 +591,10 @@ public class MasterDictionary {
             
             
         }
-        if(cmap !=null){
-            omrsObs.setFormID(cmap.getNmrsFormID());
-            omrsObs.setConceptID(cmap.getNmrsConceptID());
-        }
+        //if(cmap !=null){
+            //omrsObs.setFormID(cmap.getNmrsFormID());
+            //omrsObs.setConceptID(cmap.getNmrsConceptID());
+       // }
         return cmap;
     }
 
