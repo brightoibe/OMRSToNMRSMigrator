@@ -53,6 +53,7 @@ public class ImportController {
         if(exportType.equalsIgnoreCase("Obs")){
             //dao.migrateMigrateForms(xmlFilePath, locationID);//Obs(xmlFilePath, locationID);
             dao.migrateObs(xmlFilePath, locationID);
+            dao.secondPass(xmlFilePath, locationID);
             
         }else if(exportType.equalsIgnoreCase("Demographics")){
             dao.migrateDemographics(xmlFilePath, locationID);
