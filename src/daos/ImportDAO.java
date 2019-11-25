@@ -1520,7 +1520,7 @@ public class ImportDAO {
                 nmrsConceptID=dictionary.getNMRSGroupingConceptID(omrsValueCoded);
                 drugNameConceptID=dictionary.getNMRSMedicationNameConceptID(omrsValueCoded);
                 updateNMRSDrugGroupingConcepts(obs.getObsGroupID(), nmrsConceptID);
-                updateNMRSDrugNameConceptID(obs.getObsGroupID(), drugNameConceptID);
+                updateNMRSDrugNameConceptID(obs.getObsID(), drugNameConceptID);
             }
             if(obs.getConceptID()==7778371){
                 omrsValueCoded=obs.getValueCoded();
@@ -1786,7 +1786,7 @@ public class ImportDAO {
         }
     }
     public void updateNMRSDrugNameConceptID(int obs_id, int conceptID){
-        String sql_text="update obs set concept_id=? where obs_group_id=? and concept_id=165724";
+        String sql_text="update obs set concept_id=? where obs_id=?";
         PreparedStatement ps=null;
         ResultSet rs=null;
         try{
