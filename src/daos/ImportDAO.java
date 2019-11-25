@@ -1519,7 +1519,7 @@ public class ImportDAO {
                 omrsValueCoded=obs.getValueCoded();
                 nmrsConceptID=dictionary.getNMRSGroupingConceptID(omrsValueCoded);
                 drugNameConceptID=dictionary.getNMRSMedicationNameConceptID(omrsValueCoded);
-                updateNMRSDrugGroupingConcepts(obs.getObsID(), nmrsConceptID);
+                updateNMRSDrugGroupingConcepts(obs.getObsGroupID(), nmrsConceptID);
                 updateNMRSDrugNameConceptID(obs.getObsGroupID(), drugNameConceptID);
             }
             if(obs.getConceptID()==7778371){
