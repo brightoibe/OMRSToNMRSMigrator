@@ -1535,7 +1535,7 @@ public class ImportDAO {
                         multiplyUnit=7;
                         break;
                 }
-                updateDurationCalculation(obs.getObsID(), multiplyUnit);
+                updateDurationCalculation(obs.getObsGroupID(), multiplyUnit);
             }
         }
     }
