@@ -21,6 +21,7 @@ import model.DisplayScreen;
 import model.Encounter;
 import model.MapConfig;
 import model.Obs;
+import model.Record;
 import model.User;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
@@ -78,6 +79,10 @@ public class MasterDictionary {
     private final static int NMRS_ARV_GROUPING_CONCEPT_ID = 162240;
     private final static int NMRS_OI_GROUPING_CONCEPT_ID = 165726;
     private final static int NMRS_ANTI_TB_GROUPING_CONCEPT_ID = 165728;
+    
+    private final static int NMRS_ARV_MEDICATION_NAME_CONCEPT_ID=165726;
+    private final static int NMRS_OI_MEDICATION_NAME_CONCEPT_ID=162240;
+    private final static int NMRS_TB_MEDICATION_NAME_CONCEPT_ID=165728;
 
     private final static int NMRS_PHARMACY_FORM_ID = 27;
 
@@ -572,8 +577,40 @@ public class MasterDictionary {
         cmap.setNmrsConceptID(nmrsConceptID);
         return cmap;
     }
+    public Record getRecordObject(int valueCoded){
+        Record record=null;
+        int nmrsConceptID=0;
+        int nmrsGroupingConceptID=0;
+        
+        if(isARVMedication(valueCoded)){
+            record=new Record();
+            nmrsGroupingConceptID=NMRS_ARV_GROUPING_CONCEPT_ID;
+            nmrsConceptID=NMRS_ARV_MEDICATION_NAME_CONCEPT_ID;
+            record.setWrappingGroupingConceptID(nmrsGroupingConceptID);
+            record.setMedicationNameConceptID(nmrsConceptID);
+        }else if(isOIMedication(valueCoded)){
+            record=new Record();
+            nmrsGroupingConceptID=NMRS_OI_GROUPING_CONCEPT_ID;
+            nmrsConceptID=NMRS_OI_MEDICATION_NAME_CONCEPT_ID;
+            record.setWrappingGroupingConceptID(nmrsGroupingConceptID);
+            record.setMedicationNameConceptID(nmrsConceptID);
+        }else if(isTBMedication(valueCoded)){
+            record=new Record();
+            nmrsGroupingConceptID=NMRS_ANTI_TB_GROUPING_CONCEPT_ID;
+            nmrsConceptID=NMRS_TB_MEDICATION_NAME_CONCEPT_ID;
+            record.setWrappingGroupingConceptID(nmrsGroupingConceptID);
+            record.setMedicationNameConceptID(nmrsConceptID);
+        }
+        
+        
+        
+        
+        
+        return record;
+    }
     public int getNMRSGroupingConceptID(int valueCoded){
         int nmrsGroupingConceptID=NMRS_ARV_GROUPING_CONCEPT_ID;
+        
         if(isARVMedication(valueCoded)){
             nmrsGroupingConceptID=NMRS_ARV_GROUPING_CONCEPT_ID;
         }else if(isOIMedication(valueCoded)){
@@ -582,6 +619,17 @@ public class MasterDictionary {
             nmrsGroupingConceptID=NMRS_ANTI_TB_GROUPING_CONCEPT_ID;
         }
         return nmrsGroupingConceptID;
+    }
+    public int getNMRSMedicationNameConceptID(int valueCoded){
+        int nmrsConceptID=NMRS_ARV_MEDICATION_NAME_CONCEPT_ID;
+        if(isARVMedication(valueCoded)){
+            nmrsConceptID=NMRS_ARV_MEDICATION_NAME_CONCEPT_ID;
+        }else if(isOIMedication(valueCoded)){
+            nmrsConceptID=NMRS_OI_MEDICATION_NAME_CONCEPT_ID;
+        }else if(isTBMedication(valueCoded)){
+            nmrsConceptID=NMRS_TB_MEDICATION_NAME_CONCEPT_ID;
+        }
+        return nmrsConceptID;
     }
     public ConceptMap handleSpecialConcepts(Obs omrsObs) {
         ConceptMap cmap = null;

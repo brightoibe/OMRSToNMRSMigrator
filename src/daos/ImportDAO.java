@@ -44,6 +44,7 @@ import model.Encounter;
 import model.EncounterProvider;
 import model.Obs;
 import model.Provider;
+import model.Record;
 import model.User;
 import model.Visit;
 import org.apache.commons.lang3.StringUtils;
@@ -87,6 +88,7 @@ public class ImportDAO {
     Map<Integer, Provider> providerMap = new HashMap<Integer, Provider>();
     private Map<Integer, Date> dateOfBirthMap = new HashMap<Integer, Date>();
     private int visitID;
+    private Map<Integer,Record> trackMap=new HashMap<Integer,Record>();
 
     public ImportDAO() {
         dictionary = new MasterDictionary();
@@ -1101,6 +1103,7 @@ public class ImportDAO {
                             screen.updateStatus(count + " of " + size + " obs records migrated");
                             if (allowedFormList.contains(obs.getFormID()) && obs.getVoided() == 0) {
                                obsList.add(obs);
+                               
                             }
                             count++;
                         }
@@ -1115,8 +1118,9 @@ public class ImportDAO {
                 migrateMigrateForms(obsList, locationID, dateOfBirthMap);
                 obsList.clear();
             }
-            dictionary.closeAllResources();
             commitConnection();
+            dictionary.closeAllResources();
+            
         } catch (XMLStreamException xstr) {
             handleException(xstr);
         } catch (FileNotFoundException fne) {
@@ -1126,7 +1130,18 @@ public class ImportDAO {
         }
 
     }
-
+    public void trackObsGroupingConcepts(List<Obs> obsList){
+        Record record=null;
+        for(Obs obs: obsList){
+            if(obs.getConceptID()==7778364){
+                record=dictionary.getRecordObject(obs.getValueCoded());
+                trackMap.put(obs.getObsID(), record);
+            }
+        }
+    }
+   
+    
+    
     public void savePersonName(List<User> userList) {
         String sql_text = "insert into person_name (preferred,person_id,given_name,family_name,creator,date_created,voided,uuid) values (?,?,?,?,?,?,?,?)";
         PreparedStatement ps = prepareQuery(sql_text);
@@ -1493,10 +1508,12 @@ public class ImportDAO {
     public void correctPharmacyObsGroupingConcepts(List<Obs> obsList){
         int valueCoded=0;
         for(Obs obs: obsList){
-            if(obs.getConceptID()==OMRS_DRUG_NAME_CONCEPT_ID){
+            if(obs.getConceptID()==165724){
                 valueCoded=obs.getValueCoded();
                 int nmrsGroupingConceptID=dictionary.getNMRSGroupingConceptID(valueCoded);
+                int medicationNameConceptID=dictionary.getNMRSMedicationNameConceptID(valueCoded);
                 updateNMRSDrugGroupingConcepts(obs.getObsGroupID(), nmrsGroupingConceptID);
+                updateNMRSConceptID(obs.getObsID(), medicationNameConceptID);
                 screen.updateStatus("Updating pharmacy obs... ");
             }
         }
@@ -1510,7 +1527,23 @@ public class ImportDAO {
         }
     }
     public void updateNMRSDrugGroupingConcepts(int obs_id, int conceptID){
-        String sql_text="update obs set concept_id=? where obs_id=? and concept_id=7778408";
+        String sql_text="update obs set concept_id=? where obs_id=?";
+        PreparedStatement ps=null;
+        ResultSet rs=null;
+        try{
+            ps=prepareQuery(sql_text);
+            ps.setInt(1, conceptID);
+            ps.setInt(2, obs_id);
+            ps.executeUpdate();
+            cleanup(rs, ps);
+        }catch(SQLException ex){
+            handleException(ex);
+        }finally{
+            cleanup(rs, ps);
+        }
+    }
+    public void updateNMRSConceptID(int obs_id, int conceptID){
+        String sql_text="update obs set concept_id=? where obs_group_id=? and concept_id=165724";
         PreparedStatement ps=null;
         ResultSet rs=null;
         try{
@@ -1707,6 +1740,7 @@ public class ImportDAO {
         }
         return ans;
     }
+    
    
     public void preprocessObsList(List<Obs> obsList, Map<Integer, Date> dateMap) {
         //List<Obs> mappedObs = new ArrayList<Obs>();
