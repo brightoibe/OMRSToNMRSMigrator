@@ -581,7 +581,7 @@ public class MasterDictionary {
             int nmrsConceptID=0;
             if(isARVMedication(omrsValueCoded)){
                 cmap=createConceptMap(omrsObs.getFormID(),omrsObs.getConceptID(),NMRS_PHARMACY_FORM_ID,NMRS_ARV_GROUPING_CONCEPT_ID);
-            }
+            } 
             if(isOIMedication(omrsValueCoded)){
                 cmap=createConceptMap(omrsObs.getFormID(),omrsObs.getConceptID(), NMRS_PHARMACY_FORM_ID, NMRS_OI_GROUPING_CONCEPT_ID);
             }
