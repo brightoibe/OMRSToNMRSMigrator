@@ -32,15 +32,21 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class Test {
     
-
+    private static class Point implements Cloneable{
+        public int x;
+        public int y;
+        public Point(int x,int y){
+            this.x=x;
+            this.y=y;
+        }
+        @Override
+        public Object clone() throws CloneNotSupportedException{
+            return super.clone();
+        }
+    }
     public static void main(String[] args) throws ParseException
     {
-       int[] allowedForms = {1, 56, 65, 67, 18};
-       if(Arrays.binarySearch(allowedForms, 18)>0){
-           System.out.println("Found it");
-       }else{
-            System.out.println("Wahala");
-       }
+       
 
     }
 }

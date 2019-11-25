@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -47,7 +48,6 @@ public class MasterDictionary {
     private List<ConceptMap> conceptMapList = null;
 
     private Integer[] regimenConceptArr = {7778531, 7778532, 7778533, 7778611};
-    private Integer[] specialConceptArr = {};
 
     private final static int REGIMEN_LINE_AT_ART_START = 7778531;
     private final static int FIRST_LINE_REGIMEN_AT_ART_START = 7778532;
@@ -68,8 +68,28 @@ public class MasterDictionary {
 
     private final static int NMRS_NEXT_APPOINTMENT_DATE_CONCEPT_ID = 165036;
 
+    private final static int OMRS_DRUG_NAME_CONCEPT_ID = 7778364;
+
+    private final static int OMRS_ADULT_PHARMACY_ORDER_FORM_ID = 46;
+    private final static int OMRS_PED_PHARMACY_ORDER_FORM_ID = 53;
+
+    private final static int OMRS_DRUG_ORDER_GROUPING_CONCEPT = 7778408;
+
+    private final static int NMRS_ARV_GROUPING_CONCEPT_ID = 162240;
+    private final static int NMRS_OI_GROUPING_CONCEPT_ID = 165726;
+    private final static int NMRS_ANTI_TB_GROUPING_CONCEPT_ID = 165728;
+
+    private final static int NMRS_PHARMACY_FORM_ID = 27;
+
+    private Integer[] specialConceptArr = {7778408};
     private List<Integer> regimenConceptlist = new ArrayList<Integer>();
     private List<Integer> specialConceptList = new ArrayList<Integer>();
+    private List<Integer> arvConceptList = new ArrayList<Integer>();
+    private List<Integer> oiConceptList = new ArrayList<Integer>();
+    private List<Integer> tbConceptList = new ArrayList<Integer>();
+
+    ;
+
 
     public MasterDictionary() {
         mgr = new FileManager();
@@ -80,8 +100,6 @@ public class MasterDictionary {
          */
 
     }
-
-   
 
     public ConceptMap getConceptMapForRegimenConcepts(int age, ConceptMap cmap) {
         int omrsQuestionConceptID = cmap.getOmrsQuestionConcept();
@@ -155,6 +173,46 @@ public class MasterDictionary {
     public void loadMapFiles() {
         List<String[]> dataArr = mgr.loadAllDataInFolder("map");
         conceptMapList = Converter.convertToConceptMapList(dataArr);
+    }
+
+    private void loadARVConceptList() {
+        Integer[] arvArray = {960,
+            953, 959, 952, 962,
+            18, 1187, 961, 957,
+            1190, 956, 955, 958,
+            1213, 1221, 1222, 1224,
+            1225, 1227, 1228, 1533,
+            23, 1189, 1186, 1188, 1184,
+            17, 954, 1185, 1235, 1236,
+            1237, 7778159, 1219, 1232,
+            1223, 1233, 1234, 1226, 1184
+        };
+        arvConceptList.addAll(Arrays.asList(arvArray));
+    }
+
+    private void loadOIConceptList() {
+        Integer[] oiArray = {
+            1192, 1193, 1194, 599,
+            1195, 1196, 1198, 1199,
+            1200, 1201, 594, 1202,
+            1203, 1204, 1206, 1207,
+            1208, 1209, 1210, 1211,
+            1212, 37, 1214, 1215,
+            1216, 963, 1217, 1218,
+            1239, 1240, 1241, 949,
+            950, 10, 7778153, 7778154,
+            592, 7778155, 68, 7778156,
+            58, 590, 7778158, 1197,
+            1205, 608
+        };
+        oiConceptList.addAll(Arrays.asList(oiArray));
+
+    }
+
+    private void loadTBConceptList() {
+        Integer[] tbArray = {1594, 11, 35, 34,
+            66, 36, 39, 38, 40};
+        oiConceptList.addAll(Arrays.asList(tbArray));
     }
 
     public void loadFormIDMap() {
@@ -301,6 +359,85 @@ public class MasterDictionary {
         mgr.writeCSV(demo);
     }
 
+    public boolean isARVMedication(int valueCoded) {
+        boolean ans = false;
+        if (arvConceptList.contains(valueCoded)) {
+            ans = true;
+        }
+        return ans;
+    }
+
+    public boolean isOIMedication(int valueCoded) {
+        boolean ans = false;
+        if (oiConceptList.contains(valueCoded)) {
+            ans = true;
+        }
+        return ans;
+    }
+
+    public boolean isTBMedication(int valueCoded) {
+        boolean ans = false;
+        if (tbConceptList.contains(valueCoded)) {
+            ans = true;
+        }
+        return ans;
+    }
+
+    public Obs getGroupingConceptObs(Obs obs) {
+        Obs groupingObs = null;
+        int groupingConceptID = 0;
+        if (obs.getFormID() == OMRS_ADULT_PHARMACY_ORDER_FORM_ID || obs.getFormID() == OMRS_PED_PHARMACY_ORDER_FORM_ID) {
+            if (obs.getConceptID() == OMRS_DRUG_NAME_CONCEPT_ID) {
+                if (isOIMedication(obs.getValueCoded())) {
+                    groupingObs = createObsGroupWithID(NMRS_OI_GROUPING_CONCEPT_ID, obs);
+                }
+                if (isARVMedication(obs.getValueCoded())) {
+                    groupingObs = createObsGroupWithID(NMRS_ARV_GROUPING_CONCEPT_ID, obs);
+                }
+                if (isTBMedication(obs.getValueCoded())) {
+                    groupingObs = createObsGroupWithID(NMRS_ANTI_TB_GROUPING_CONCEPT_ID, obs);
+                }
+            }
+        }
+        return groupingObs;
+    }
+
+    public Set<Obs> createObsGroupSet(List<Obs> obsList) {
+        Set<Obs> obsSet = new HashSet<Obs>();
+        Obs obsGroupingConcept = null;
+        for (Obs ele : obsList) {
+            obsGroupingConcept = getGroupingConceptObs(ele);
+            obsSet.add(obsGroupingConcept);
+        }
+        return obsSet;
+    }
+
+    public Obs createObsGroupWithID(int obsGroupConceptId, Obs obs) {
+        Obs groupingObs = new Obs();
+        groupingObs.setObsID(obs.getObsGroupID());
+        groupingObs.setConceptID(obsGroupConceptId);
+        groupingObs.setCreator(obs.getCreator());
+        groupingObs.setEncounterID(obs.getEncounterID());
+        groupingObs.setFormID(obs.getFormID());
+        groupingObs.setVoided(obs.getVoided());
+        groupingObs.setDateVoided(obs.getDateVoided());
+        groupingObs.setVoidedBy(obs.getVoidedBy());
+        groupingObs.setDateChanged(obs.getDateChanged());
+        groupingObs.setChangedBy(obs.getChangedBy());
+        groupingObs.setDateEntered(obs.getDateEntered());
+        groupingObs.setEnteredBy(obs.getEnteredBy());
+        groupingObs.setFormName(obs.getFormName());
+        groupingObs.setPatientID(obs.getPatientID());
+        groupingObs.setHospID(obs.getHospID());
+        groupingObs.setPepfarID(obs.getPepfarID());
+        groupingObs.setProvider(obs.getProvider());
+        groupingObs.setLocationID(obs.getLocationID());
+        groupingObs.setLocationName(obs.getLocationName());
+        groupingObs.setVisitDate(obs.getVisitDate());
+        groupingObs.setUuid(Converter.generateUUID());
+        return groupingObs;
+    }
+
     public void loadEncounterTypeIDMap() {
         encounterTypeIDMap.put(1, 7);
         encounterTypeIDMap.put(2, 3);
@@ -309,7 +446,7 @@ public class MasterDictionary {
         encounterTypeIDMap.put(7, 5);
         encounterTypeIDMap.put(8, 18);
         encounterTypeIDMap.put(10, 2);
-        
+
         encounterTypeIDMap.put(13, 15);
         encounterTypeIDMap.put(14, 12);
         encounterTypeIDMap.put(5, 16);
@@ -339,6 +476,9 @@ public class MasterDictionary {
         loadMapFiles();
         loadRegimenSpecialConcepts();
         loadSpecialConcepts();
+        loadARVConceptList();
+        loadOIConceptList();
+        loadTBConceptList();
 
     }
 
@@ -374,6 +514,7 @@ public class MasterDictionary {
     }
 
     public void mapToNMRS(Obs omrsObs, Map<Integer, Date> dateMap) {
+
         ConceptMap cmap = null;
         Date birthdate = dateMap.get(omrsObs.getPatientID());
         LocalDateTime birthDateTime = new LocalDateTime(birthdate);
@@ -391,6 +532,10 @@ public class MasterDictionary {
             cmap = getConceptMapFor(omrsObs.getFormID(), omrsObs.getConceptID());
 
         }
+        if(specialConceptList.contains(omrsObs.getConceptID())){
+            cmap=handleSpecialConcepts(omrsObs);
+        }
+
         if (cmap != null) {
             if (omrsObs.getValueCoded() != 0) {
                 //omrsObs.setFormID(formIDMap.get(omrsObs.getFormID()));
@@ -402,14 +547,42 @@ public class MasterDictionary {
                 omrsObs.setFormID(cmap.getNmrsFormID());
                 omrsObs.setConceptID(cmap.getNmrsConceptID());
             }
-            //handleSpecialConcepts(omrsObs, cmap);
+           
 
         } else {
             omrsObs.setAllowed(false);
         }
     }
+    public ConceptMap createConceptMap(int omrsFormID,int omrsConceptID,int nmrsFormID,int nmrsConceptID){
+        ConceptMap cmap=new ConceptMap();
+        cmap.setOmrsFormID(omrsFormID);
+        cmap.setOmrsConceptID(omrsConceptID);
+        cmap.setOmrsConceptDataType("ConvSet");
+        cmap.setNmrsFormID(nmrsFormID);
+        cmap.setNmrsConceptID(nmrsConceptID);
+        return cmap;
+    }
+    public ConceptMap handleSpecialConcepts(Obs omrsObs) {
+        ConceptMap cmap = null;
+        if (specialConceptList.contains(omrsObs.getConceptID())) {
+            int omrsConceptID = omrsObs.getConceptID();
+            int omrsValueCoded = omrsObs.getValueCoded();
+            int nmrsConceptID=0;
+            if(isARVMedication(omrsValueCoded)){
+                cmap=createConceptMap(omrsObs.getFormID(),omrsObs.getConceptID(),NMRS_PHARMACY_FORM_ID,NMRS_ARV_GROUPING_CONCEPT_ID);
+            }
+            if(isOIMedication(omrsValueCoded)){
+                cmap=createConceptMap(omrsObs.getFormID(),omrsObs.getConceptID(), NMRS_PHARMACY_FORM_ID, NMRS_OI_GROUPING_CONCEPT_ID);
+            }
+            if(isTBMedication(omrsValueCoded)){
+                cmap=createConceptMap(omrsObs.getFormID(),omrsObs.getConceptID(), NMRS_PHARMACY_FORM_ID, NMRS_ANTI_TB_GROUPING_CONCEPT_ID);
+            }
+            
+        }
+        return cmap;
+    }
 
-    public void handleSpecialConcepts(Obs omrsObs, ConceptMap cmap) {
+    public void handleSpecialConcepts2(Obs omrsObs, ConceptMap cmap) {
         if (specialConceptList.contains(omrsObs.getConceptID())) {
             int omrsConceptID = omrsObs.getConceptID();
             int omrsValueCoded = omrsObs.getValueCoded();
@@ -447,14 +620,13 @@ public class MasterDictionary {
 
     public void mapToNMRS(Encounter omrsEncounter) {
         if (omrsEncounter != null && formIDMap.containsKey(omrsEncounter.getFormID()) && encounterTypeIDMap.containsKey(formIDMap.get(omrsEncounter.getFormID()))) {
-            
-            
+
             int omrsFormID = omrsEncounter.getFormID();
             omrsEncounter.setFormID(formIDMap.get(omrsFormID));
             int nmrsFormID = formIDMap.get(omrsFormID);
             int nmrsEncounterType = encounterTypeIDMap.get(nmrsFormID);
             omrsEncounter.setEncounterType(nmrsEncounterType);
-            
+
             System.out.println("Encounter mapping done...");
         } else {
             if (omrsEncounter != null) {
@@ -462,8 +634,9 @@ public class MasterDictionary {
             }
         }
     }
-    public ConceptMap getConceptMapFor(int age,Obs omrsObs){
-        ConceptMap cmap=null;
+
+    public ConceptMap getConceptMapFor(int age, Obs omrsObs) {
+        ConceptMap cmap = null;
         if (omrsObs.getValueCoded() != 0) {
             cmap = getConceptMapFor(omrsObs.getFormID(), omrsObs.getValueCoded(), omrsObs.getConceptID());
             if (isRegimenObs(omrsObs)) {
@@ -475,6 +648,7 @@ public class MasterDictionary {
         }
         return cmap;
     }
+
     public ConceptMap getConceptMapFor(int omrsFormID, int omrsConceptID) {
         ConceptMap conceptMap = null;
         for (ConceptMap cmap : conceptMapList) {

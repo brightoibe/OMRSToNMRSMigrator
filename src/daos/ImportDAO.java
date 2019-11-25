@@ -1482,6 +1482,7 @@ public class ImportDAO {
         preprocessEncounterProviders(providerSet);
         migrateEncounterProvider(providerSet);
         preprocessObsList(obsList, dateMap);
+        
         migrateObs(obsList, locationID);
     }
 
@@ -1641,9 +1642,10 @@ public class ImportDAO {
         }
         return ans;
     }
-
+   
     public void preprocessObsList(List<Obs> obsList, Map<Integer, Date> dateMap) {
         //List<Obs> mappedObs = new ArrayList<Obs>();
+        
         for (Obs obs : obsList) {
             if (dictionary.isMapped(obs) != null) {
                 dictionary.mapToNMRS(obs, dateMap);
