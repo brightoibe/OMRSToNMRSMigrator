@@ -533,7 +533,6 @@ public class MasterDictionary {
         LocalDateTime nextAppointmentDate = null;
         Period period = new Period(birthDateTime, visitDateTime);
         int age = Math.abs(period.getYears());
-
         if (omrsObs.getValueCoded() != 0) {
             cmap = getConceptMapFor(omrsObs.getFormID(), omrsObs.getValueCoded(), omrsObs.getConceptID());
             if (isRegimenObs(omrsObs)) {
