@@ -1102,7 +1102,7 @@ public class ImportDAO {
                             }
                             count++;
                         }
-                        if (count % 100 == 0) {
+                        if (count % 1000 == 0) {
                             migrateMigrateForms(obsList, locationID, dateOfBirthMap);
                             obsList.clear();
                         }
@@ -1504,7 +1504,7 @@ public class ImportDAO {
         //update the obs table based on the value of the 
     }
     public void updateNMRSDrugGroupingConcepts(int obs_id, int conceptID){
-        String sql_text="update obs set concept_id=? where obs_id=?";
+        String sql_text="update obs set concept_id=? where obs_id=? and concept_id=7778408";
         PreparedStatement ps=null;
         ResultSet rs=null;
         try{
@@ -1792,7 +1792,7 @@ public class ImportDAO {
             }
             ps.executeBatch();
             ps.close();
-            //commitConnection();
+            commitConnection();
         } catch (SQLException ex) {
             handleException(ex);
         }
