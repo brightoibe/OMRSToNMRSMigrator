@@ -493,6 +493,9 @@ public class MasterDictionary {
         } else {
             cmap = getConceptMapFor(omrsObs.getFormID(), omrsObs.getConceptID());
         }
+        if(specialConceptList.contains(omrsObs.getConceptID())){
+            cmap=handleSpecialConcepts(omrsObs);
+        }
         return cmap;
     }
 
