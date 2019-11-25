@@ -80,9 +80,9 @@ public class MasterDictionary {
     private final static int NMRS_OI_GROUPING_CONCEPT_ID = 165726;
     private final static int NMRS_ANTI_TB_GROUPING_CONCEPT_ID = 165728;
     
-    private final static int NMRS_ARV_MEDICATION_NAME_CONCEPT_ID=165726;
-    private final static int NMRS_OI_MEDICATION_NAME_CONCEPT_ID=162240;
-    private final static int NMRS_TB_MEDICATION_NAME_CONCEPT_ID=165728;
+    private final static int NMRS_ARV_MEDICATION_NAME_CONCEPT_ID=165724;
+    private final static int NMRS_OI_MEDICATION_NAME_CONCEPT_ID=165727;
+    private final static int NMRS_TB_MEDICATION_NAME_CONCEPT_ID=165304;
 
     private final static int NMRS_PHARMACY_FORM_ID = 27;
 
