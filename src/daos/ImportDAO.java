@@ -28,6 +28,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
@@ -1498,10 +1500,14 @@ public class ImportDAO {
                 screen.updateStatus("Updating pharmacy obs... ");
             }
         }
-        //List<DrugObs> drugNamesObs=getAllObs(OMRS_DRUG_NAME_CONCEPT_ID);//get all drug name concept
-        
-        //check the value coded concepts
-        //update the obs table based on the value of the 
+        try {
+            commitConnection();
+            //List<DrugObs> drugNamesObs=getAllObs(OMRS_DRUG_NAME_CONCEPT_ID);//get all drug name concept
+            //check the value coded concepts
+            //update the obs table based on the value of the 
+        } catch (SQLException ex) {
+            handleException(ex);
+        }
     }
     public void updateNMRSDrugGroupingConcepts(int obs_id, int conceptID){
         String sql_text="update obs set concept_id=? where obs_id=? and concept_id=7778408";
