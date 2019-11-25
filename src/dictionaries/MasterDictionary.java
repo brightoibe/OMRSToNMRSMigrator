@@ -581,6 +581,11 @@ public class MasterDictionary {
                 cmap=createConceptMap(omrsObs.getFormID(),omrsObs.getConceptID(), NMRS_PHARMACY_FORM_ID, NMRS_ANTI_TB_GROUPING_CONCEPT_ID);
             }
             
+            
+        }
+        if(cmap !=null){
+            omrsObs.setFormID(cmap.getNmrsFormID());
+            omrsObs.setConceptID(cmap.getNmrsConceptID());
         }
         return cmap;
     }
