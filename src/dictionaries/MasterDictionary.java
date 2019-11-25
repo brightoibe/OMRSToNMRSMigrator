@@ -609,7 +609,7 @@ public class MasterDictionary {
         return record;
     }
     public int getNMRSGroupingConceptID(int valueCoded){
-        int nmrsGroupingConceptID=NMRS_ARV_GROUPING_CONCEPT_ID;
+        int nmrsGroupingConceptID=0;
         
         if(isARVMedication(valueCoded)){
             nmrsGroupingConceptID=NMRS_ARV_GROUPING_CONCEPT_ID;

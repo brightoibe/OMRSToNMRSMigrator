@@ -81,6 +81,7 @@ public class ImportDAO {
     private final static int VOIDED = 0;
     private final static String ADDRESS_COUNTRY = "NIGERIA";
     private final static int OMRS_DRUG_NAME_CONCEPT_ID=7778364;
+    
     private Set<Integer> providerIdSet = new HashSet<Integer>();
     private FileManager mgr;
     private MasterDictionary dictionary;
@@ -1502,8 +1503,25 @@ public class ImportDAO {
         migrateEncounterProvider(providerSet);
         preprocessObsList(obsList, dateMap);
         migrateObs(obsList, locationID);
-        correctPharmacyObsGroupingConcepts(obsList);
+        //correctPharmacyObsGroupingConcepts(obsList);
         
+    }
+    public void correctPharmacyObsGroupingConcepts2(List<Obs> obsList){
+        int omrsConceptID=0;
+        int omrsValueCoded=0;
+        int nmrsConceptID=0;
+        int nmrsValueCoded=0;
+        int drugNameConceptID=0;
+        for(Obs obs: obsList){
+            omrsConceptID=obs.getConceptID();
+            if(omrsConceptID==7778364){
+                omrsValueCoded=obs.getValueCoded();
+                nmrsConceptID=dictionary.getNMRSGroupingConceptID(omrsValueCoded);
+                drugNameConceptID=dictionary.getNMRSMedicationNameConceptID(omrsValueCoded);
+                updateNMRSDrugGroupingConcepts(obs.getObsID(), nmrsConceptID);
+                updateNMRSDrugNameConceptID(obs.getObsGroupID(), drugNameConceptID);
+            }
+        }
     }
     public void correctPharmacyObsGroupingConcepts(List<Obs> obsList){
         int valueCoded=0;
@@ -1516,7 +1534,7 @@ public class ImportDAO {
                 int nmrsGroupingConceptID=dictionary.getNMRSGroupingConceptID(valueCoded);
                 int medicationNameConceptID=dictionary.getNMRSMedicationNameConceptID(valueCoded);
                 updateNMRSDrugGroupingConcepts(obs.getObsGroupID(), nmrsGroupingConceptID);
-                updateNMRSConceptID(obs.getObsID(), medicationNameConceptID);
+                updateNMRSDrugNameConceptID(obs.getObsID(), medicationNameConceptID);
                 screen.updateStatus("Updating pharmacy obs... ");
             }
         }
@@ -1528,6 +1546,199 @@ public class ImportDAO {
         } catch (SQLException ex) {
             handleException(ex);
         }
+    }
+    public void updateDurationCalculation(List<Obs> obsList){
+        
+    }
+     public void secondPass(String xmlFileName, int locationID) {
+        File file = new File(xmlFileName);
+        int count = 0;
+        List<Obs> obsList = new ArrayList<Obs>();
+        Integer[] allowedForms = {1, 56, 65, 67, 18,46,53};
+        List<Integer> allowedFormList=new ArrayList<Integer>();
+        allowedFormList.addAll(Arrays.asList(allowedForms));
+        Obs obs = null;
+        dictionary.initializeObsErrorLog();
+        //All dictionaries needed for this operation is loaded here
+        loadProviderMap();
+        loadUserMap();
+        loadDateOfBirths();
+        try {
+            int size = countRecords(xmlFileName, "obs");
+            XMLInputFactory factory = XMLInputFactory.newInstance();
+            XMLEventReader eventReader = factory.createXMLEventReader(new FileReader(file));
+            //StartElement startElement=null;
+            screen.updateMinMaxProgress(0, size);
+            XMLEvent xmlEvent2 = null;
+            XMLEvent evt = null;
+            Characters eventCharacters = null;
+            while (eventReader.hasNext()) {
+                evt = eventReader.nextEvent();
+                if (evt.isStartElement()) {
+                    StartElement startElement = evt.asStartElement();
+                    if ("obs".equalsIgnoreCase(startElement.getName().getLocalPart())) {
+                        obs = new Obs();
+                    }
+                    switch (startElement.getName().getLocalPart()) {
+                        case "OBS_ID":
+                            xmlEvent2 = eventReader.nextEvent();
+                            obs.setObsID(Converter.convertEventToInt(xmlEvent2));
+                            break;
+                        case "PATIENT_ID":
+                            xmlEvent2 = eventReader.nextEvent();
+                            obs.setPatientID(Converter.convertEventToInt(xmlEvent2));
+                            break;
+                        case "ENCOUNTER_ID":
+                            xmlEvent2 = eventReader.nextEvent();
+                            obs.setEncounterID(Converter.convertEventToInt(xmlEvent2));
+                            break;
+                        case "PEPFAR_ID":
+                            xmlEvent2 = eventReader.nextEvent();
+                            obs.setPepfarID(Converter.convertEventToString(xmlEvent2));
+                            break;
+                        case "HOSP_ID":
+                            xmlEvent2 = eventReader.nextEvent();
+                            obs.setHospID(Converter.convertEventToString(xmlEvent2));
+                            break;
+                        case "VISIT_DATE":
+                            xmlEvent2 = eventReader.nextEvent();
+                            obs.setVisitDate(Converter.convertEventToDate(xmlEvent2));
+                            break;
+                        case "PMM_FORM":
+                            xmlEvent2 = eventReader.nextEvent();
+                            obs.setFormName(Converter.convertEventToString(xmlEvent2));
+                            break;
+                        case "CONCEPT_ID":
+                            xmlEvent2 = eventReader.nextEvent();
+                            obs.setConceptID(Converter.convertEventToInt(xmlEvent2));
+                            break;
+                        case "VARIABLE_NAME":
+                            xmlEvent2 = eventReader.nextEvent();
+                            obs.setVariableName(Converter.convertEventToString(xmlEvent2));
+                            break;
+                        case "VARIABLE_VALUE":
+                            xmlEvent2 = eventReader.nextEvent();
+                            obs.setVariableValue(Converter.convertEventToString(xmlEvent2));
+                            break;
+                        case "ENTERED_BY":
+                            xmlEvent2 = eventReader.nextEvent();
+                            obs.setEnteredBy(Converter.convertEventToString(xmlEvent2));
+                            break;
+                        case "DATE_CREATED":
+                            xmlEvent2 = eventReader.nextEvent();
+                            obs.setDateEntered(Converter.convertEventToDate(xmlEvent2));
+                            break;
+                        case "DATE_CHANGED":
+                            xmlEvent2 = eventReader.nextEvent();
+                            obs.setDateChanged(Converter.convertEventToDate(xmlEvent2));
+                            break;
+                        case "PROVIDER":
+                            xmlEvent2 = eventReader.nextEvent();
+                            obs.setProvider(Converter.convertEventToString(xmlEvent2));
+                            break;
+                        case "UUID":
+                            xmlEvent2 = eventReader.nextEvent();
+                            obs.setUuid(Converter.convertEventToString(xmlEvent2));
+                            break;
+                        case "LOCATION":
+                            xmlEvent2 = eventReader.nextEvent();
+                            obs.setLocationName(Converter.convertEventToString(xmlEvent2));
+                            break;
+                        case "LOCATION_ID":
+                            xmlEvent2 = eventReader.nextEvent();
+                            obs.setLocationID(Converter.convertEventToInt(xmlEvent2));
+                            break;
+                        case "CREATOR_ID":
+                            xmlEvent2 = eventReader.nextEvent();
+                            obs.setCreator(Converter.convertEventToInt(xmlEvent2));
+                            break;
+                        case "PROVIDER_ID":
+                            xmlEvent2 = eventReader.nextEvent();
+                            obs.setProviderID(Converter.convertEventToInt(xmlEvent2));
+                            break;
+                        case "VALUE_NUMERIC":
+                            xmlEvent2 = eventReader.nextEvent();
+                            obs.setValueNumeric(Converter.convertEventToDouble(xmlEvent2));
+                            break;
+                        case "VALUE_DATETIME":
+                            xmlEvent2 = eventReader.nextEvent();
+                            obs.setValueDate(Converter.convertEventToDate(xmlEvent2));
+                            break;
+                        case "VALUE_CODED":
+                            xmlEvent2 = eventReader.nextEvent();
+                            obs.setValueCoded(Converter.convertEventToInt(xmlEvent2));
+                            break;
+                        case "VALUE_TEXT":
+                            xmlEvent2 = eventReader.nextEvent();
+                            obs.setValueText(Converter.convertEventToString(xmlEvent2));
+                            break;
+                        case "VALUE_BOOL":
+                            xmlEvent2 = eventReader.nextEvent();
+                            obs.setValueBoolean(Converter.convertEventToBoolean(xmlEvent2));
+                            break;
+                        case "OBS_GROUP_ID":
+                            xmlEvent2 = eventReader.nextEvent();
+                            obs.setObsGroupID(Converter.convertEventToInt(xmlEvent2));
+                            break;
+                        case "VOIDED":
+                            xmlEvent2 = eventReader.nextEvent();
+                            obs.setVoided(Converter.convertEventToInt(xmlEvent2));
+                            break;
+                        case "DATE_VOIDED":
+                            xmlEvent2 = eventReader.nextEvent();
+                            obs.setDateVoided(Converter.convertEventToDate(xmlEvent2));
+                            break;
+                        case "VOIDED_BY":
+                            xmlEvent2 = eventReader.nextEvent();
+                            obs.setVoidedBy(Converter.convertEventToInt(xmlEvent2));
+                            break;
+                        case "CHANGED_BY":
+                            xmlEvent2 = eventReader.nextEvent();
+                            obs.setChangedBy(Converter.convertEventToInt(xmlEvent2));
+                            break;
+                        case "FORM_ID":
+                            xmlEvent2 = eventReader.nextEvent();
+                            obs.setFormID(Converter.convertEventToInt(xmlEvent2));
+                            break;
+                    }
+
+                }
+                if (evt.isEndElement()) {
+                    EndElement endElement = evt.asEndElement();
+                    if ("obs".equalsIgnoreCase(endElement.getName().getLocalPart())) {
+                        if (obs != null) {
+                            screen.updateProgress(count);
+                            screen.updateStatus(count + " of " + size + " obs records migrated");
+                            if (allowedFormList.contains(obs.getFormID()) && obs.getVoided() == 0) {
+                               obsList.add(obs);
+                               
+                            }
+                            count++;
+                        }
+                        if (count % 1000 == 0) {
+                            correctPharmacyObsGroupingConcepts2(obsList);
+                            //migrateMigrateForms(obsList, locationID, dateOfBirthMap);
+                            obsList.clear();
+                        }
+                    }
+                }
+            }
+            if (!obsList.isEmpty()) {
+                //migrateMigrateForms(obsList, locationID, dateOfBirthMap);
+                correctPharmacyObsGroupingConcepts2(obsList);
+                obsList.clear();
+            }
+            commitConnection();
+            dictionary.closeAllResources();
+            
+        } catch (XMLStreamException xstr) {
+            handleException(xstr);
+        } catch (FileNotFoundException fne) {
+            handleException(fne);
+        } catch (SQLException ex) {
+            handleException(ex);
+        }
+
     }
     public void updateNMRSDrugGroupingConcepts(int obs_id, int conceptID){
         String sql_text="update obs set concept_id=? where obs_id=? and concept_id=7778408";
@@ -1545,7 +1756,7 @@ public class ImportDAO {
             cleanup(rs, ps);
         }
     }
-    public void updateNMRSConceptID(int obs_id, int conceptID){
+    public void updateNMRSDrugNameConceptID(int obs_id, int conceptID){
         String sql_text="update obs set concept_id=? where obs_group_id=? and concept_id=165724";
         PreparedStatement ps=null;
         ResultSet rs=null;
@@ -1561,6 +1772,7 @@ public class ImportDAO {
             cleanup(rs, ps);
         }
     }
+    
     public List<DrugObs> getAllObs(int conceptID){
         String sql_text="select obs_id,concept_id,value_coded,obs_group_id from obs where concept_id=?";
         PreparedStatement ps=null;
