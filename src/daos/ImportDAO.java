@@ -1507,8 +1507,11 @@ public class ImportDAO {
     }
     public void correctPharmacyObsGroupingConcepts(List<Obs> obsList){
         int valueCoded=0;
+        Integer[] targetConcepts={165724,165727,165304};
+        List<Integer> targetConceptList=new ArrayList<Integer>();
+        targetConceptList.addAll(Arrays.asList(targetConcepts));
         for(Obs obs: obsList){
-            if(obs.getConceptID()==165724){
+            if(targetConceptList.contains(obs.getConceptID())){
                 valueCoded=obs.getValueCoded();
                 int nmrsGroupingConceptID=dictionary.getNMRSGroupingConceptID(valueCoded);
                 int medicationNameConceptID=dictionary.getNMRSMedicationNameConceptID(valueCoded);
@@ -1527,7 +1530,7 @@ public class ImportDAO {
         }
     }
     public void updateNMRSDrugGroupingConcepts(int obs_id, int conceptID){
-        String sql_text="update obs set concept_id=? where obs_id=?";
+        String sql_text="update obs set concept_id=? where obs_id=? and concept_id=7778408";
         PreparedStatement ps=null;
         ResultSet rs=null;
         try{
