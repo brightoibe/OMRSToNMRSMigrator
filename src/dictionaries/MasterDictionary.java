@@ -621,7 +621,7 @@ public class MasterDictionary {
         return nmrsGroupingConceptID;
     }
     public int getNMRSMedicationNameConceptID(int valueCoded){
-        int nmrsConceptID=NMRS_ARV_MEDICATION_NAME_CONCEPT_ID;
+        int nmrsConceptID=0;
         if(isARVMedication(valueCoded)){
             nmrsConceptID=NMRS_ARV_MEDICATION_NAME_CONCEPT_ID;
         }else if(isOIMedication(valueCoded)){

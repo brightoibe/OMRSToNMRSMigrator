@@ -1512,6 +1512,7 @@ public class ImportDAO {
         int nmrsConceptID=0;
         int nmrsValueCoded=0;
         int drugNameConceptID=0;
+        int multiplyUnit=1;
         for(Obs obs: obsList){
             omrsConceptID=obs.getConceptID();
             if(omrsConceptID==7778364){
@@ -1520,6 +1521,21 @@ public class ImportDAO {
                 drugNameConceptID=dictionary.getNMRSMedicationNameConceptID(omrsValueCoded);
                 updateNMRSDrugGroupingConcepts(obs.getObsID(), nmrsConceptID);
                 updateNMRSDrugNameConceptID(obs.getObsGroupID(), drugNameConceptID);
+            }
+            if(obs.getConceptID()==7778371){
+                omrsValueCoded=obs.getValueCoded();
+                switch(omrsValueCoded){
+                    case 523:
+                        multiplyUnit=1;
+                        break;
+                    case 524:
+                        multiplyUnit=30;
+                        break;
+                    case 520:
+                        multiplyUnit=7;
+                        break;
+                }
+                updateDurationCalculation(obs.getObsID(), multiplyUnit);
             }
         }
     }
@@ -1547,8 +1563,21 @@ public class ImportDAO {
             handleException(ex);
         }
     }
-    public void updateDurationCalculation(List<Obs> obsList){
-        
+    public void updateDurationCalculation(int obsGroupID, int multiplyUnit){
+        String sql_text="update obs set value_numeric=value_numeric*? where obs_group_id=? and concept_id=159368";
+        PreparedStatement ps=null;
+        ResultSet rs=null;
+        try{
+           ps=prepareQuery(sql_text);
+           ps.setInt(1, multiplyUnit);
+           ps.setInt(2, obsGroupID);
+           ps.executeUpdate();
+           cleanup(rs, ps);
+        }catch(SQLException ex){
+            handleException(ex);
+        }finally{
+            cleanup(rs, ps);
+        }
     }
      public void secondPass(String xmlFileName, int locationID) {
         File file = new File(xmlFileName);
@@ -1708,7 +1737,7 @@ public class ImportDAO {
                     if ("obs".equalsIgnoreCase(endElement.getName().getLocalPart())) {
                         if (obs != null) {
                             screen.updateProgress(count);
-                            screen.updateStatus(count + " of " + size + " obs records migrated");
+                            screen.updateStatus(count + " of " + size + " pharmacy updated");
                             if (allowedFormList.contains(obs.getFormID()) && obs.getVoided() == 0) {
                                obsList.add(obs);
                                
