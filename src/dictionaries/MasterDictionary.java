@@ -573,6 +573,17 @@ public class MasterDictionary {
         cmap.setNmrsConceptID(nmrsConceptID);
         return cmap;
     }
+    public int getNMRSGroupingConceptID(int valueCoded){
+        int nmrsGroupingConceptID=NMRS_ARV_GROUPING_CONCEPT_ID;
+        if(isARVMedication(valueCoded)){
+            nmrsGroupingConceptID=NMRS_ARV_GROUPING_CONCEPT_ID;
+        }else if(isOIMedication(valueCoded)){
+            nmrsGroupingConceptID=NMRS_OI_GROUPING_CONCEPT_ID;
+        }else if(isTBMedication(valueCoded)){
+            nmrsGroupingConceptID=NMRS_ANTI_TB_GROUPING_CONCEPT_ID;
+        }
+        return nmrsGroupingConceptID;
+    }
     public ConceptMap handleSpecialConcepts(Obs omrsObs) {
         ConceptMap cmap = null;
         if (specialConceptList.contains(omrsObs.getConceptID())) {

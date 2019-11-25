@@ -37,6 +37,7 @@ import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 import model.ConceptMap;
 import model.Demographics;
+import model.DrugObs;
 import model.Encounter;
 import model.EncounterProvider;
 import model.Obs;
@@ -76,6 +77,7 @@ public class ImportDAO {
     private final static int VISIT_TYPE_ID = 1;
     private final static int VOIDED = 0;
     private final static String ADDRESS_COUNTRY = "NIGERIA";
+    private final static int OMRS_DRUG_NAME_CONCEPT_ID=7778364;
     private Set<Integer> providerIdSet = new HashSet<Integer>();
     private FileManager mgr;
     private MasterDictionary dictionary;
@@ -1483,8 +1485,66 @@ public class ImportDAO {
         migrateEncounterProvider(providerSet);
         preprocessObsList(obsList, dateMap);
         migrateObs(obsList, locationID);
+        correctPharmacyObsGroupingConcepts(obsList);
+        
     }
-
+    public void correctPharmacyObsGroupingConcepts(List<Obs> obsList){
+        int valueCoded=0;
+        for(Obs obs: obsList){
+            if(obs.getConceptID()==OMRS_DRUG_NAME_CONCEPT_ID){
+                valueCoded=obs.getValueCoded();
+                int nmrsGroupingConceptID=dictionary.getNMRSGroupingConceptID(valueCoded);
+                updateNMRSDrugGroupingConcepts(obs.getObsGroupID(), nmrsGroupingConceptID);
+                screen.updateStatus("Updating pharmacy obs... ");
+            }
+        }
+        //List<DrugObs> drugNamesObs=getAllObs(OMRS_DRUG_NAME_CONCEPT_ID);//get all drug name concept
+        
+        //check the value coded concepts
+        //update the obs table based on the value of the 
+    }
+    public void updateNMRSDrugGroupingConcepts(int obs_id, int conceptID){
+        String sql_text="update obs set concept_id=? where obs_id=?";
+        PreparedStatement ps=null;
+        ResultSet rs=null;
+        try{
+            ps=prepareQuery(sql_text);
+            ps.setInt(1, conceptID);
+            ps.setInt(2, obs_id);
+            ps.executeUpdate();
+            cleanup(rs, ps);
+        }catch(SQLException ex){
+            handleException(ex);
+        }finally{
+            cleanup(rs, ps);
+        }
+    }
+    public List<DrugObs> getAllObs(int conceptID){
+        String sql_text="select obs_id,concept_id,value_coded,obs_group_id from obs where concept_id=?";
+        PreparedStatement ps=null;
+        ResultSet rs=null;
+        DrugObs obsDrug=null;
+        List<DrugObs> drugObsList=new ArrayList<DrugObs>();
+        try{
+            ps=prepareQuery(sql_text);
+            ps.setInt(1, conceptID);
+            rs=ps.executeQuery();
+            while(rs.next()){
+                obsDrug=new DrugObs();
+                obsDrug.setObsID(rs.getInt("obs_id"));
+                obsDrug.setConceptID(rs.getInt("concept_id"));
+                obsDrug.setValueCoded(rs.getInt("value_coded"));
+                obsDrug.setObsGroupID(rs.getInt("obs_group_id"));
+                drugObsList.add(obsDrug);
+            }
+            cleanup(rs, ps);
+        }catch(SQLException ex){
+            handleException(ex);
+        }finally{
+            cleanup(rs, ps);
+        }
+        return drugObsList;
+    }
     public boolean isExistingVisit(Date startDate, int patientID) {
         boolean ans = false;
         String sql_text = "select visit_id from visit where patient_id=? and date_started=? and voided=0";
