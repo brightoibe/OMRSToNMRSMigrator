@@ -1,3 +1,0 @@
-"user_id","person_id","username","fullname","given_name","family_name","gender","date_created","creator","uuid","date_changed","retired","retired_by"
-"1","admin","eHealth Developer","eHealth","Developer","null","2005-01-01","1","1d6dcbee-c8b5-11e0-983a-00ff2c80bde4","2014-04-08","0","0"
-"10","scheduler","Scheduler ","Scheduler","null","M","2012-01-29","1","3b534274-27db-4a18-bf8c-b4edebbfc168","2012-01-29","0","0"
