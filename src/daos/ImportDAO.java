@@ -1777,6 +1777,7 @@ public class ImportDAO {
              ps=prepareQuery(sql_text);
              ps.executeUpdate();
              cleanup(rs, ps);
+             commitConnection();
          }catch(SQLException ex){
              handleException(ex);
          }finally{
