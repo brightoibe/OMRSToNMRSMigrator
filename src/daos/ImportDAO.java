@@ -1769,6 +1769,20 @@ public class ImportDAO {
         }
 
     }
+     public void updateRemainingGroupingConcepts(){
+         String sql_text="update obs set concept_id=162240 where concept_id=7778408";
+         PreparedStatement ps=null;
+         ResultSet rs=null;
+         try{
+             ps=prepareQuery(sql_text);
+             ps.executeUpdate();
+             cleanup(rs, ps);
+         }catch(SQLException ex){
+             handleException(ex);
+         }finally{
+             cleanup(rs, ps);
+         }
+     }
     public void updateNMRSDrugGroupingConcepts(int obs_id, int conceptID){
         String sql_text="update obs set concept_id=? where obs_id=? and concept_id=7778408";
         PreparedStatement ps=null;
