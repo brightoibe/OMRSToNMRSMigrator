@@ -1,4 +1,3 @@
-OMRS,,,,,NMRS,,,,
 FormID,ConceptID,ConceptName,DataType,IsAnswerToWhichConcept,FormID,ConceptID,ConceptName,DataType,IsAnswerToWhichConcept
 20,1069,MOTHER'S HEALTH STATUS,CODED,,18,5588, MOTHER DECEASED,,
 20,1068,ALIVE,N/A,1069,18,1,TRUE,,5588
