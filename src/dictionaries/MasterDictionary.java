@@ -48,7 +48,7 @@ public class MasterDictionary {
     private Map<Integer, List<ConceptMap>> csvMapDictionaries = new HashMap<Integer, List<ConceptMap>>();
     private List<ConceptMap> conceptMapList = null;
 
-    private Integer[] regimenConceptArr = {7778531, 7778532, 7778533, 7778611};
+    private Integer[] regimenConceptArr = {7778531,7778532,7778533,7778611,7778111,7778109,7778108};
 
     private final static int REGIMEN_LINE_AT_ART_START = 7778531;
     private final static int FIRST_LINE_REGIMEN_AT_ART_START = 7778532;
@@ -66,6 +66,7 @@ public class MasterDictionary {
     private final static int FIRST_LINE_REGIMEN = 7778108;
     private final static int SECOND_LINE_REGIMEN = 7778109;
     private final static int THIRD_LINE_REGIMEN = 7778611;
+    private final static int REGIMEN_LINE=7778111;
 
     private final static int NMRS_NEXT_APPOINTMENT_DATE_CONCEPT_ID = 165036;
 
@@ -85,7 +86,7 @@ public class MasterDictionary {
     private final static int NMRS_TB_MEDICATION_NAME_CONCEPT_ID=165304;
 
     private final static int NMRS_PHARMACY_FORM_ID = 27;
-
+    private Integer[] specialConceptArr2={7778111,7778108,7778109,7778611};
     private Integer[] specialConceptArr = {7778408};
     private List<Integer> regimenConceptlist = new ArrayList<Integer>();
     private List<Integer> specialConceptList = new ArrayList<Integer>();
@@ -106,10 +107,14 @@ public class MasterDictionary {
 
     }
 
-    public ConceptMap getConceptMapForRegimenConcepts(int age, ConceptMap cmap) {
-        int omrsQuestionConceptID = cmap.getOmrsQuestionConcept();
-        int omrsAnswerConceptID = cmap.getOmrsConceptID();
-        if (age < 15) {
+    public ConceptMap getConceptMapForRegimenConcepts(Obs omrsObs,int age, ConceptMap cmap) {
+        int omrsQuestionConceptID = omrsObs.getConceptID();
+        int omrsAnswerConceptID = omrsObs.getValueCoded();
+        Integer[] excludeForms={53,46};
+        List<Integer> excludeFormsList=new ArrayList<Integer>();
+        excludeFormsList.addAll(Arrays.asList(excludeForms));
+        
+        if (age < 15 && !excludeFormsList.contains(omrsObs.getFormID())) {
             switch (omrsQuestionConceptID) {
                 case REGIMEN_LINE_AT_ART_START:
                     if (omrsAnswerConceptID == FIRST_LINE_REGIMEN) {
@@ -131,11 +136,33 @@ public class MasterDictionary {
                 case THIRD_LINE_REGIMEN_AT_ART_START:
                     cmap.setNmrsQuestionConcept(CHILD_THIRD_LINE_REGIMEN);
                     break;
+                case REGIMEN_LINE:
+                   if (omrsAnswerConceptID == FIRST_LINE_REGIMEN) {
+                        cmap.setNmrsConceptID(CHILD_FIRST_LINE_REGIMEN);
+                    }
+                    if (omrsAnswerConceptID == SECOND_LINE_REGIMEN) {
+                        cmap.setNmrsConceptID(CHILD_SECOND_LINE_REGIMEN);
+                    }
+                    if (omrsAnswerConceptID == THIRD_LINE_REGIMEN) {
+                        cmap.setNmrsConceptID(CHILD_THIRD_LINE_REGIMEN);
+                    }
+                    break;
+                case FIRST_LINE_REGIMEN:
+                    cmap.setNmrsQuestionConcept(CHILD_FIRST_LINE_REGIMEN);
+                    break;
+                case SECOND_LINE_REGIMEN:
+                    cmap.setNmrsQuestionConcept(CHILD_SECOND_LINE_REGIMEN);
+                    break;
+                //This has been taken care of by THIRD_LINE_REGIMEN_AT_START constant
+                /*  case THIRD_LINE_REGIMEN:
+                    cmap.setNmrsQuestionConcept(CHILD_THIRD_LINE_REGIMEN);
+                    break;
+                */
                 default:
                     break;
             }
         }
-        if (age >= 15) {
+        if (age >= 15 && !excludeFormsList.contains(omrsObs.getFormID())) {
             switch (omrsQuestionConceptID) {
                 case REGIMEN_LINE_AT_ART_START:
                     if (omrsAnswerConceptID == FIRST_LINE_REGIMEN) {
@@ -157,6 +184,28 @@ public class MasterDictionary {
                 case THIRD_LINE_REGIMEN_AT_ART_START:
                     cmap.setNmrsQuestionConcept(ADULT_THIRD_LINE_REGIMEN);
                     break;
+                case REGIMEN_LINE:
+                   if (omrsAnswerConceptID == FIRST_LINE_REGIMEN) {
+                        cmap.setNmrsConceptID(ADULT_FIRST_LINE_REGIMEN);
+                    }
+                    if (omrsAnswerConceptID == SECOND_LINE_REGIMEN) {
+                        cmap.setNmrsConceptID(ADULT_SECOND_LINE_REGIMEN);
+                    }
+                    if (omrsAnswerConceptID == THIRD_LINE_REGIMEN) {
+                        cmap.setNmrsConceptID(ADULT_THIRD_LINE_REGIMEN);
+                    }
+                    break;
+                case FIRST_LINE_REGIMEN:
+                    cmap.setNmrsQuestionConcept(ADULT_FIRST_LINE_REGIMEN);
+                    break;
+                case SECOND_LINE_REGIMEN:
+                    cmap.setNmrsQuestionConcept(ADULT_SECOND_LINE_REGIMEN);
+                    break;
+                //This has been taken care of by THIRD_LINE_REGIMEN_AT_START constant
+                /*  case THIRD_LINE_REGIMEN:
+                    cmap.setNmrsQuestionConcept(CHILD_THIRD_LINE_REGIMEN);
+                    break;
+                */    
                 default:
                     break;
             }
@@ -528,9 +577,25 @@ public class MasterDictionary {
         }
         return ans;
     }
+    public ConceptMap readConceptMap(Obs omrsObs,int age){
+        ConceptMap cmap=null;
+        /*if(specialConceptList.contains(omrsObs.getConceptID())){
+            cmap=handleSpecialConcepts2(omrsObs);
+            return cmap;
+        }*/
 
+        if (omrsObs.getValueCoded() != 0) {
+            cmap = getConceptMapFor(omrsObs.getFormID(), omrsObs.getValueCoded(), omrsObs.getConceptID());
+            if (isRegimenObs(omrsObs)) {
+                cmap = getConceptMapForRegimenConcepts(omrsObs,age, cmap);
+            }
+        } else {
+            cmap = getConceptMapFor(omrsObs.getFormID(), omrsObs.getConceptID());
+
+        }
+        return cmap;
+    }
     public void mapToNMRS(Obs omrsObs, Map<Integer, Date> dateMap) {
-
         ConceptMap cmap = null;
         Date birthdate = dateMap.get(omrsObs.getPatientID());
         LocalDateTime birthDateTime = new LocalDateTime(birthdate);
@@ -538,19 +603,9 @@ public class MasterDictionary {
         LocalDateTime nextAppointmentDate = null;
         Period period = new Period(birthDateTime, visitDateTime);
         int age = Math.abs(period.getYears());
-        if (omrsObs.getValueCoded() != 0) {
-            cmap = getConceptMapFor(omrsObs.getFormID(), omrsObs.getValueCoded(), omrsObs.getConceptID());
-            if (isRegimenObs(omrsObs)) {
-                cmap = getConceptMapForRegimenConcepts(age, cmap);
-            }
-        } else {
-            cmap = getConceptMapFor(omrsObs.getFormID(), omrsObs.getConceptID());
-
-        }
-        if(specialConceptList.contains(omrsObs.getConceptID())){
-            cmap=handleSpecialConcepts(omrsObs);
-        }
-
+        
+        cmap=readConceptMap(omrsObs, age);
+        
         if (cmap != null) {
             if (omrsObs.getValueCoded() != 0) {
                 //omrsObs.setFormID(formIDMap.get(omrsObs.getFormID()));
@@ -562,12 +617,11 @@ public class MasterDictionary {
                 omrsObs.setFormID(cmap.getNmrsFormID());
                 omrsObs.setConceptID(cmap.getNmrsConceptID());
             }
-           
-
         } else {
             omrsObs.setAllowed(false);
         }
     }
+    
     public ConceptMap createConceptMap(int omrsFormID,int omrsConceptID,int nmrsFormID,int nmrsConceptID){
         ConceptMap cmap=new ConceptMap();
         cmap.setOmrsFormID(omrsFormID);
@@ -630,6 +684,11 @@ public class MasterDictionary {
             nmrsConceptID=NMRS_TB_MEDICATION_NAME_CONCEPT_ID;
         }
         return nmrsConceptID;
+    }
+    public ConceptMap handleSpecialConcepts2(Obs omrsObs){
+        ConceptMap cmap=null;
+        
+        return cmap;
     }
     public ConceptMap handleSpecialConcepts(Obs omrsObs) {
         ConceptMap cmap = null;
@@ -694,7 +753,6 @@ public class MasterDictionary {
 
     public void mapToNMRS(Encounter omrsEncounter) {
         if (omrsEncounter != null && formIDMap.containsKey(omrsEncounter.getFormID()) && encounterTypeIDMap.containsKey(formIDMap.get(omrsEncounter.getFormID()))) {
-
             int omrsFormID = omrsEncounter.getFormID();
             omrsEncounter.setFormID(formIDMap.get(omrsFormID));
             int nmrsFormID = formIDMap.get(omrsFormID);
@@ -714,7 +772,7 @@ public class MasterDictionary {
         if (omrsObs.getValueCoded() != 0) {
             cmap = getConceptMapFor(omrsObs.getFormID(), omrsObs.getValueCoded(), omrsObs.getConceptID());
             if (isRegimenObs(omrsObs)) {
-                cmap = getConceptMapForRegimenConcepts(age, cmap);
+                cmap = getConceptMapForRegimenConcepts(omrsObs,age, cmap);
             }
         } else {
             cmap = getConceptMapFor(omrsObs.getFormID(), omrsObs.getConceptID());
