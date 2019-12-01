@@ -1,0 +1,57 @@
+FormID,ConceptID,ConceptName,DataType,IsAnswerToWhichConcept,FormID,ConceptID,ConceptName,DataType,IsAnswerToWhichConcept
+29,889,reason for tracking,CODED,,13,165460,reason for tracking,CODED,
+29,886,missed appointment,N/A,889,13,165462,missed appointment,N/A,165460
+29,887,missed pharmacy refill,N/A,889,13,165473,Missed Pharmacy Refill,N/A,165460
+29,888,couple testing,N/A,889,13,165789,couple testing,N/A,165460
+29,974,lost to follow up,N/A,889,13,5240,lost to followup,N/A,165460
+29,1051,name of contact,TEXT,,13,161135,Partner full name,TEXT,
+29,1736,contact person address,TEXT,,13,160641,"	Address of treatment supporter",TEXT,
+29,97,contact phone number,TEXT,,13,159635,contact phone number,TEXT,
+29,1255,date of missing appointment,DATE,,13,165778,date of missed scheduled appointment,DATE,
+29,1254,date of last contact,DATE,,13,165461,"	Date of Last Actual Contact",DATE,
+29,7778427,Attempt to contact information,CODED,,13,165902,Contact Attempt,TEXT,
+29,890,name of person who attempted contact,TEXT,,13,165464,name of person who attempted contact,TEXT,
+29,7777904,date patient contacted,DATE,,13,165463,date patient contacted,DATE,
+29,893,mode of communication,CODED,,13,165465,mode of communication,CODED,
+29,891,home phone,N/A,893,13,1650,home phone,N/A,165465
+29,892,home visit,N/A,893,13,165791,home visit,N/A,165465
+29,80,yes,N/A,7777901,13,160639,Guardian,N/A,165466
+29,80,yes,N/A,7777902,13,1555,CHEW,N/A,165466
+29,80,yes,N/A,7777903,13,161642,Treatment supporter,N/A,165466
+29,905,reason for defaulting ,CODED,,13,165467,reason for defaulting ,CODED,
+29,843,illness,N/A,905,13,165031,sick,N/A,165467
+29,898,no transport,N/A,905,13,1737,lack of money for transport,N/A,165467
+29,79,transferred,N/A,905,13,159492,transferred out,N/A,165467
+29,899,patient forgot,N/A,905,13,162192,patient forgot to attend appointment,N/A,165467
+29,900,fet better,N/A,905,13,160586,felt better and stopped taking medication,N/A,165467
+29,901,not premitted to leave work,N/A,905,13,165896,not permitted to leave work,N/A,165467
+29,902,lost appointment card,N/A,905,13,165897,Lost appointment card,N/A,165467
+29,903,still hard drugs,N/A,905,13,165898,still hard drugs,N/A,165467
+29,904,taking herbal treatment,N/A,905,13,5841,herbal traditional medications,N/A,165467
+29,33,other non-coded,N/A,905,13,5622,other,N/A,165467
+29,972,patient care terminated,CODED,,13,165468," 	Patient Care in Facility Terminated",CODED,
+29,80,yes,N/A,972,13,1065,Yes,N/A,165468
+29,81,no,N/A,972,13,1066,No,N/A,165468
+29,977,reason for termination,CODED,,13,165470,reason for termination,CODED,
+29,974,lost to follow up,N/A,977,13,5240,lost to followup,N/A,165470
+29,211,patient transferred out,N/A,977,13,159492,transferred out,N/A,165470
+29,976,discontinued care,N/A,977,13,165916,discontinued care,N/A,165470
+29,975,Death,N/A,977,13,16588,death,N/A,165470
+29,978,date transferred,DATE,,13,165469,Date of Termination,DATE,
+29,979,transferred out to ,TEXT,,13,159495,Transferred out to,TEXT,
+29,976,discontinued care,CODED,,13,165916,discontinued care,CODED,
+29,981,self discontinuation,N/A,976,13,165891,Self Discontinuation,N/A,165916
+29,982,forced discontinuation,N/A,976,13,165891,Forced Discontinuation(Civil unrest),N/A,165916
+29,983,patient moved,N/A,976,13,165892,Moved out of Area,N/A,165916
+29,33,other non-coded,N/A,976,13,5622,Other,N/A,165916
+29,7778428,other reasons for discontinued care,TEXT,,13,165917,discontinue care other specify,TEXT,
+29,7778426,cause of death coded,CODED,,13,165889,death,CODED,
+29,7778424,suspected arv side effect,N/A,7778426,13,165886,Suspected ARV Side effect,N/A,165889
+29,7778425,suspected opportunistic infection,N/A,7778426,13,165887,Suspected Opportunistic infection,N/A,165889
+29,33,other non-coded,N/A,7778426,13,165888,other cause of death,N/A,165889
+29,13,unknown,N/A,7778426,13,1067,unknown,N/A,165889
+29,1147,other cause of death,TEXT,,13,165915,other cause of death,TEXT,
+29,7778429,date returned to care,DATE,,13,165775,date returned to care,DATE,
+29,260,Referrals ordered,CODED,,13,165776,Referred for,CODED,
+29,240,adherence counseling,N/A,260,13,5488,Adherence Counseling,N/A,165776
+29,33,other non-coded,N/A,260,13,5622,Other,N/A,165776

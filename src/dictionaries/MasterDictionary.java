@@ -278,7 +278,7 @@ public class MasterDictionary {
         formIDMap.put(28, 23);
         formIDMap.put(19, 23);
         formIDMap.put(65, 23);
-        formIDMap.put(29, 11);
+        formIDMap.put(29, 13);
         formIDMap.put(20, 20);
         //formIDMap.put(1, 23);
         formIDMap.put(71, 13);
@@ -286,7 +286,7 @@ public class MasterDictionary {
         formIDMap.put(85, 52);
         formIDMap.put(66, 30);
         formIDMap.put(64, 30);
-        formIDMap.put(69, 10);
+        //formIDMap.put(69, 13);
         formIDMap.put(47, 1);
         formIDMap.put(17, 16);
         formIDMap.put(76, 51);

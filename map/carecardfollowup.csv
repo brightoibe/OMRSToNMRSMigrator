@@ -25,7 +25,7 @@ FormID,ConceptID,ConceptName,DataType,IsAnswerToWhichConcept,FormID,ConceptID,Co
 56,7777863,Vasectomy,N/A,1742,14,1489,Vasectomy,N/A,374
 56,33,OTHER NON-CODED,N/A,1742,14,5622,Other,N/A,374
 56,1013,FUNCTIONAL STATUS,CODED,,14,165039,Functional Status,CODED,
-56,1009,Working ,CODED,1013,14,162750, Able to walk without assistance ,N/A,165039
+56,1009,Working ,CODED,1013,14,159468, Able to walk without assistance ,N/A,165039
 56,1010, Ambulatory ,N/A,1013,14,160026, Patient ambulatory ,N/A,165039
 56,1012,Bedridden,N/A,1013,14,162752, Bedridden ,N/A,165039
 56,7777798,WHO STAGING,CODED,,14,5356,CURRENT WHO HIV STAGE,,
