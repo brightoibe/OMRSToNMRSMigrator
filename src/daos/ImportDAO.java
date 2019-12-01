@@ -947,7 +947,7 @@ public class ImportDAO {
         File file = new File(xmlFileName);
         int count = 0;
         List<Obs> obsList = new ArrayList<Obs>();
-        Integer[] allowedForms = {1, 56, 65, 67, 18,46,53,20,29,69};
+        Integer[] allowedForms = {1, 56, 65, 67, 18,46,53,20,29,71};
         List<Integer> allowedFormList=new ArrayList<Integer>();
         allowedFormList.addAll(Arrays.asList(allowedForms));
         Obs obs = null;
