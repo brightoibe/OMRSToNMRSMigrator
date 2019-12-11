@@ -75,6 +75,8 @@ public class ImportDAO {
     private final static int HIV_TESTING_SERVICES = 4;
     private final static int PEPFAR_IDENTIFIER = 4;
     private final static int OPENMRSID_IDENTIFIER = 1;
+    private final static int OLD_IDENTIFIER=2;
+    private final static int HOSPITAL_IDENTIFIER=5;
     private final static int SERVICE_PROVIDER_ENCOUNTER_ROLE = 3;
     private final static int DATAENTRY_PROVIDER_ENCOUNTER_ROLE = 1;
     private final static int VISIT_TYPE_ID = 1;
@@ -434,7 +436,31 @@ public class ImportDAO {
                     ps.setString(9, Converter.generateUUID());
                     ps.addBatch();
                 }
-
+                if (StringUtils.isNotEmpty(demo.getHospID())) {
+                    ps.setInt(1, demo.getPatientID());
+                    ps.setString(2, demo.getHospID());
+                    ps.setInt(3, HOSPITAL_IDENTIFIER);
+                    ps.setInt(4, 0);
+                    ps.setInt(5, locationID);
+                    ps.setInt(6, demo.getCreatorID());
+                    ps.setDate(7, Converter.convertToSQLDate(demo.getDateCreated()));
+                    ps.setInt(8, VOIDED);
+                    ps.setString(9, Converter.generateUUID());
+                    ps.addBatch();
+                }
+                if (StringUtils.isNotEmpty(demo.getOtherID())) {
+                    ps.setInt(1, demo.getPatientID());
+                    ps.setString(2, demo.getOtherID());
+                    ps.setInt(3, OLD_IDENTIFIER);
+                    ps.setInt(4, 0);
+                    ps.setInt(5, locationID);
+                    ps.setInt(6, demo.getCreatorID());
+                    ps.setDate(7, Converter.convertToSQLDate(demo.getDateCreated()));
+                    ps.setInt(8, VOIDED);
+                    ps.setString(9, Converter.generateUUID());
+                    ps.addBatch();
+                }
+                
             }
             ps.executeBatch();
             ps.close();
