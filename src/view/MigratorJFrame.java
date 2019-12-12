@@ -122,9 +122,9 @@ public class MigratorJFrame extends javax.swing.JFrame implements DisplayScreen 
         usernameField.setText("openmrs");
         passwordField.setText("ck9RdGyz&jXR");
         databaseField.setText("openmrs");
-        hostField.setText("192.168.40.221");
+        hostField.setText("localhost");
         portField.setText("3316");
-        xmlFileField.setText("C:\\Users\\Bright\\Desktop\\PROJECTS\\DATA EXPORTS\\NASARAWA\\PHCC Doma Town March 2017\\DATA WAREHOUSE201704051019\\demographics.xml");
+        xmlFileField.setText("");
         importTypeCombo.setModel(ctr.getTemplateTypeModel());
         importTypeCombo.setSelectedIndex(1);
 

@@ -1130,7 +1130,6 @@ public class ImportDAO {
                             screen.updateStatus(count + " of " + size + " obs records migrated");
                             if (allowedFormList.contains(obs.getFormID()) && obs.getVoided() == 0) {
                                obsList.add(obs);
-                               
                             }
                             count++;
                         }
