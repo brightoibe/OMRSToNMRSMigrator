@@ -2083,6 +2083,13 @@ public class ImportDAO {
             ps.setDouble(pos, val);
         }
     }
+    public void handlePS(int pos, double val, PreparedStatement ps,Obs obs) throws SQLException {
+        if (obs.getConceptID()!=856 && val == 0.0) {
+            ps.setNull(pos, java.sql.Types.DOUBLE);
+        } else {
+            ps.setDouble(pos, val);
+        }
+    }
 
     public void migrateObs(List<Obs> obsList, int locationID) {
         String sql_text = "insert into obs (obs_id,person_id,concept_id,encounter_id,"
@@ -2105,7 +2112,7 @@ public class ImportDAO {
                     handlePS(7, obs.getObsGroupID(), ps);
                     handlePS(8, obs.getValueCoded(), ps);
                     ps.setDate(9, Converter.convertToSQLDate(obs.getValueDate()));
-                    handlePS(10, obs.getValueNumeric(), ps);
+                    handlePS(10, obs.getValueNumeric(), ps,obs);
                     ps.setString(11, obs.getValueText());
                     ps.setInt(12, obs.getCreator());
                     ps.setDate(13, Converter.convertToSQLDate(obs.getDateEntered()));

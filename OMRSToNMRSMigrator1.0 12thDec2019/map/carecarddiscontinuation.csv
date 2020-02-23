@@ -1,0 +1,31 @@
+FormID,ConceptID,ConceptName,DataType,IsAnswerToWhichConcept,FormID,ConceptID,ConceptName,DataType,IsAnswerToWhichConcept
+71,977,  REASON FOR TERMINATION,CODED,,13,165470,  Reason for Termination,CODED,
+71,1728, Stopped,N/A,977,13,165385,Stopped,N/A,165470
+71,974, LOST TO FOLLOW UP,N/A,977,13,5240, Lost to followup,N/A,165470
+71,211, PATIENT TRANSFERRED OUT,N/A,977,13,159492,Transferred out,N/A,165470
+71,976, DISCONTINUED CARE,N/A,977,13,165916, Discontinued Care,N/A,165470
+71,975, DEATH,N/A,977,13,165889, Death,N/A,165470
+71,52, REASON ANTIRETROVIRALS STOPPED,CODED,,13,1252,Reason Antiretrovirals Stopped,CODED,
+71,46,"  TOXICITY, DRUG",N/A,52,13,102," Toxicity, drug ",N/A,1252
+71,47, Pregnant,N/A,52,13,1434, CURRENTLY PREGNANT ,N/A,1252
+71,51, Treatment Failure,N/A,52,13,843, Regimen failure ,N/A,1252
+71,50, Poor adherence,N/A,52,13,159598, Non-compliance with treatment or therapy ,N/A,1252
+71,45, Inpatient care or Hospitalization,N/A,52,13,5485, INPATIENT CARE OR HOSPITALIZATION ,N/A,1252
+71,44, MEDICATION STOCK OUT,N/A,52,13,1754, Medications unavailable ,N/A,1252
+71,48, CANNOT AFFORD TREATMENT,N/A,52,13,819, Cannot afford treatment ,N/A,1252
+71,31, REFUSAL OF TREATMENT BY PATIENT,N/A,52,13,164435, Other patient decision ,N/A,1252
+71,32, planned treatment interruption,N/A,52,13,160016, Planned treatment interruption ,N/A,1252
+71,33, OTHER NON-CODED,N/A,52,13,5622, Other ,N/A,1252
+71,1726,  Date ART Restarted,DATE,,13,1726,Date Returned to Care,DATE,
+71,978, DATE TRANSFERRED,DATE,,13,165469,Date of Termination,DATE,
+71,979, TRANSFERED OUT TO,TEXT,,13,159495,"	Transferred out to",TEXT,
+71,7777868,  Death date,DATE,,13,165469,Date of Termination,DATE,
+71,7777869, Cause of death HIV related,CODED,,13,165889,Death,CODED,
+71,80, YES,N/A,7777869,13,165887,Suspected Opportunistic Infection,N/A,165889
+71,81, NO,N/A,7777869,13,165888,Other cause of death,N/A,165889
+71,13, UNKNOWN,N/A,7777869,13,165889,Unknown,N/A,165889
+71,732, Drug Allergy,CODED,,13,165675,Patient has any known drug allergies,CODED,
+71,80, YES,N/A,732,13,162228,Patient has any known drug allergies,N/A,165675
+71,81, NO,N/A,732,13,160556,Patient has any known drug allergies,N/A,165675
+71,454, Other drug allergy,TEXT,,13,165893,Drug Allegies,TEXT,
+71,980, SOURCE OF DEATH INFORMATION,TEXT,,13,160218," 	Probable cause of death (text)",TEXT,
